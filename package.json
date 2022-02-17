@@ -1,0 +1,38 @@
+{
+  "name": "jwplayer-react",
+  "version": "1.0.0",
+  "description": "A react component that creates an instance of JW Player",
+  "main": "./src/jwplayer.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zetagame/jwplayer-react.git"
+  },
+  "keywords": [
+    "jwplayer",
+    "jw",
+    "player",
+    "react"
+  ],
+  "author": "Zachary Haigh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zetagame/jwplayer-react/issues"
+  },
+  "homepage": "https://github.com/zetagame/jwplayer-react#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.17.3",
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "babel-loader": "^8.2.3",
+    "react": "^17.0.2",
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2"
+  }
+}
