@@ -15,7 +15,7 @@
       * [Advertising](#optional-advertising-event-hook-props)
       * [Player Events](#optional-player-event-hook-props)
       * [Time Events](#optional-time-event-hook-props)
-* [Example Container Component](#example-container-component)
+* [Advanced Implementation Example](#advanced-implementation-example)
 * [Contributing](#contributing)
 
 ## Installation
