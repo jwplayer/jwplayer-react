@@ -1,13 +1,4 @@
 # jwplayer-react
-A react wrapper for JW Player
-
-
-# Requirements
-- A JW Player library URL OR jwplayer.js and a player key
-
-
-
-# jwplayer-react
 
 `<JWPlayer>` is a React Component for initializing an instance of JW Player's web player. It allows for any of the event hooks that can be used on the standard player, and provides access to the player API via `JWPlayer.api`.
 
