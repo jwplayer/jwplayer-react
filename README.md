@@ -9,12 +9,8 @@
 * [Usage](#usage)
 * Props
   * [Required Props](#required-props)
-  * Optional Props
-    * [Configuration](#optional-configuration-props)
-    * [Event Hooks](#event-hooks)
-      * [Advertising](#optional-advertising-event-hook-props)
-      * [Player Events](#optional-player-event-hook-props)
-      * [Time Events](#optional-time-event-hook-props)
+  * [Optional Props](#optional-props)
+  * [Event Hooks](#event-hooks)
 * [Advanced Implementation Example](#advanced-implementation-example)
 * [Contributing](#contributing)
 
