@@ -10,7 +10,8 @@
 * Props
   * [Required Props](#required-props)
   * [Optional Props](#optional-props)
-  * [Event Hooks](#event-hooks)
+  * [Events](#events)
+  * [API Functionality](#api-functionality)
 * [Advanced Implementation Example](#advanced-implementation-example)
 * [Contributing](#contributing)
 
@@ -84,15 +85,13 @@ These props are required to instantient an instance of JW Player:
   * Example: `https://cdn.jwplayer.com/v2/playlists/abcd1234`
 
 
-## Optional Configuration Props
+## Optional Props
 * All config options can be individually passed as props. See the full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference), ie: `advertising`, `analytics`, `playlist`, `related`, `width`, `height`, etc.
 * You can also use a `config` prop: a JSON config object with all the available options/types of a standard player config.
 * `didMountCallback`
   * A callback triggered after component mounts. Can be used to expose the player API to other parts of your app.
   * Type: (playerAPI) => void
   * Example: See [advanced implementation example](#advanced-implementation-example)
-
-# Events/API Functionality
 
 ## Events
 `jwplayer-react` dynamically supports all events in JW Player. Simply preface the event name with `on` (to fire every time) or `once` (to only fire the first time) and pass it in as a prop. See full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference)
