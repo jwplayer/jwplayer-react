@@ -90,7 +90,7 @@ These props are required to instantient an instance of JW Player:
 
 ## Optional Configuration Props
 * All config options can be individually passed as props. See the full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference), ie: `advertising`, `analytics`, `playlist`, `related`, `width`, `height`, etc.
-* You can also use prop, `config`, a JSON config with all the available options/types of a standard player config.
+* You can also use a `config` prop: a JSON config object with all the available options/types of a standard player config.
 * `didMountCallback`
   * A callback triggered after component mounts. Can be used to expose the player API to other parts of your app.
   * Type: (playerAPI) => void
