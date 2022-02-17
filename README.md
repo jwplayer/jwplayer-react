@@ -109,6 +109,8 @@ Examples:
 
 ## Advanced Implementation Example
 
+[Interactive Example](https://codepen.io/afrophysics/pen/oNopMBK/8cd58c84536dc8fdd180ef206687558f)
+
 ``` javascript
 import React from 'react';
 import JWPlayer from 'jwplaye-react';
