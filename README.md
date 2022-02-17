@@ -67,12 +67,10 @@ const playlist = [{
   image: 'MysecondFilesPoster.jpg',
 }];
 ...
-<SomeReactView>
-  <JWPlayer
-    library='https://path-to-my-jwplayer-library.js'
-    playlist={playlist}
-  />
-</SomeReactView>
+<JWPlayer
+  library='https://path-to-my-jwplayer-library.js'
+  playlist={playlist}
+/>
 ...
 ```
 
