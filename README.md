@@ -90,7 +90,7 @@ These props are required to instantient an instance of JW Player:
 * You can also use a `config` prop: a JSON config object with all the available options/types of a standard player config.
 * `didMountCallback`
   * A callback triggered after component mounts. Can be used to expose the player API to other parts of your app.
-  * Type: (playerAPI) => void
+  * Type: ({api, id}) => void
   * Example: See [advanced implementation example](#advanced-implementation-example)
 
 ## Events
