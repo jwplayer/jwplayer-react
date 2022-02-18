@@ -94,7 +94,7 @@ These props are required to instantient an instance of JW Player:
   * Example: See [advanced implementation example](#advanced-implementation-example)
 
 ## Events
-`jwplayer-react` dynamically supports all events in JW Player. Simply preface the event name with `on` (to fire every time) or `once` (to only fire the first time) and pass it in as a prop. See full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference)
+`jwplayer-react` dynamically supports all events in JW Player. Simply preface the event name with `on` (to fire every time) or `once` (to only fire the first time) and pass it in as a prop. See full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference).
 
 Examples:
 * `.on('ready', callback)` => `onReady={callback}`               // Executes callback every time `ready` triggered by API
@@ -103,7 +103,7 @@ Examples:
 
 
 ## API Functionality
-`jwplayer-react` creates an instance of the player API when it mounts, and sets it to `this.player`. If you want to 
+For advanced usage,`jwplayer-react` creates an instance of the player API when mounted, and sets it to `this.player`, exposing all api functionality listed [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
 
 
 
