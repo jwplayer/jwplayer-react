@@ -84,4 +84,12 @@ export const configProps = [
         "doNotTrack",
         "doNotTrackCookies",
         "images"
-      ];
+];
+
+let idCount = 0;
+
+export const generateUniqueId = () => {
+  const id = 'jwplayer-' + idCount;
+  idCount++;
+  return id;
+}

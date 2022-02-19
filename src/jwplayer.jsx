@@ -1,5 +1,5 @@
-import { configProps } from './util';
-import { generateUniqueId } from './util';
+import React from 'react';
+import { configProps, generateUniqueId } from './util';
 
 class JWPlayer extends React.Component {
   constructor(props) {
@@ -95,4 +95,4 @@ class JWPlayer extends React.Component {
   }
 }
 
-ReactDOM.render(<JWPlayer playlist='https://cdn.jwplayer.com/v2/playlists/JyQlZok7' library='https://content.jwplatform.com/libraries/OMkqF0sq.js' />, document.getElementById('root'));
+export default JWPlayer;

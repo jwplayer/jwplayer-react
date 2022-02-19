@@ -1,8 +1,8 @@
 var path = require('path');
-var pkg = require('./package.json');
+
 module.exports = {
     mode: 'production',
-    entry: pkg.main,
+    entry: './src/jwplayer.jsx',
     output: {
         path: path.resolve('lib'),
         filename: 'jwplayer-react.js',

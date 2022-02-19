@@ -2,7 +2,7 @@
   "name": "jwplayer-react",
   "version": "1.0.0",
   "description": "A react component that creates an instance of JW Player",
-  "main": "./src/jwplayer.js",
+  "main": "./lib/jwplayer-react.js",
   "scripts": {
     "build": "webpack"
   },
