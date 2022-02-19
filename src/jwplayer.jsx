@@ -82,7 +82,10 @@ class JWPlayer extends React.Component {
     const { player, id } = this;
 
     this.createEventListeners();
-    this.didMountCallback({ player, id });
+
+    if (this.didMountCallback) {
+      this.didMountCallback({ player, id });
+    }
   }
 
   componentWillUnmount() {
