@@ -9,6 +9,7 @@ class JWPlayer extends React.Component {
     this.player = null;
     this.playerLoadPromise = this.loadPlayer(props.library);
     this.didMountCallback = props.didMountCallback;
+    this.willUnmountCallback = props.willUnmountCallback;
     this.id = props.id || this.generatePlayerId();
   }
 
@@ -78,19 +79,24 @@ class JWPlayer extends React.Component {
 
   async componentDidMount() {
     this.player = await this.createPlayer();
-
-    const { player, id } = this;
-
     this.createEventListeners();
 
     if (this.didMountCallback) {
+      const { player, id } = this;
       this.didMountCallback({ player, id });
     }
   }
 
   componentWillUnmount() {
-    this.player.remove();
-    this.player = null;
+    if (this.willUnmountCallback) {
+      const { player, id } = this;
+      this.willUnmountCallback({ player, id });
+    }
+
+    if (this.player) {
+      this.player.remove();
+      this.player = null;
+    }
   }
 
   render() {

@@ -72,7 +72,6 @@ const playlist = [{
 ```
 
 ## Required Props
-
 These props are required to instantient an instance of JW Player:
 
 * `library`
@@ -92,14 +91,27 @@ These props are required to instantient an instance of JW Player:
   * A callback triggered after component mounts. Can be used to expose the player API to other parts of your app.
   * Type: ({api, id}) => void
   * Example: See [advanced implementation example](#advanced-implementation-example)
+* `willUnmountCallback`
+  * A callback triggered before component unmounts. Can be used to fire any final api calls to player before it is removed, or to inform a higher order component that a player has been removed.
+  * Type: ({api, id}) => void
+  * Example: See [advanced implementation example](#advanced-implementation-example)
+* `on<Event>`
+  * `jwplayer-react` dynamically supports all events in JW Player. Props beginning with `on` are parsed and added as JW Player event handlers. Find the full list of supported events [here]
+  * Examples:
+    * `onReady={callback}` => `playerInstance.on('ready', callback)`           // Executes callback every time `ready` event is triggered by player API
+    * `onComplete={callback}` => `playerInstance.on('complete', callback)`     // Executes callback every time `complete` event is triggered by player API
+    * `onTime={callback}` => `playerInstance.on('time', callback)`             // Executes callback every time `time` event is triggered by player API.
+* `once<Event>`
+  * `jwplayer-react` dynamically supports all events in JW Player. Props beginning with `once` are parsed and added as JW Player event handlers. Find the full list of supported events [here]
+  * Examples:
+    * `onceReady={callback}` => `playerInstance.once('ready', callback)`           // Executes callback the first time `ready` event is triggered by player API
+    * `onceComplete={callback}` => `playerInstance.once('complete', callback)`     // Executes callback the first time `complete` event is triggered by player API
+    * `onceTime={callback}` => `playerInstance.once('time', callback)`             // Executes callback the first time `time` event is triggered by player API.
 
 ## Events
-`jwplayer-react` dynamically supports all events in JW Player. Simply preface the event name with `on` (to fire every time) or `once` (to only fire the first time) and pass it in as a prop. See full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference).
+(https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference).
 
-Examples:
-* `.on('ready', callback)` => `onReady={callback}`               // Executes callback every time `ready` triggered by API
-* `.once('complete', callback)` => `onceComplete={callback}`     // Executes callback the first time `complete` is triggered by API
-* `.on('time', callback)` => `onTime={callback}`                 // Executes callback every time `time` is triggered by API.
+
 
 
 ## API Functionality
@@ -121,12 +133,18 @@ class PlayerContainer extends React.Component {
     this.players = {};
     this.onBeforePlay = this.onBeforePlay.bind(this);
     this.onPlay = this.onPlay.bind(this);
-    this.didMountCallback = this.didMountCallback.bind(this);
+    this.playerMountedCallback = this.playerMountedCallback.bind(this);
+    this.playerUnmountingCallback = this.playerUnmountingCallback.bind(this);
   }
   
   // Registers players as they mount
-  didMountCallback({ player, id }) {
+  playerMountedCallback({ player, id }) {
     this.players[id] = player;
+  }
+
+  // Nulls registered players as they unmount
+  playerUnmountingCallback({ id }) {
+    this.players[id] = null;
   }
 
   // Custom script that prevents multiple players from playing simultaneously
@@ -163,7 +181,8 @@ class PlayerContainer extends React.Component {
           config={configDefaults}
           onBeforePlay={this.onBeforePlay}
           onPlay={this.onPlay}
-          didMountCallback={this.didMountCallback}
+          didMountCallback={this.playerMountedCallback}
+          willUnmountCallback={this.playerUnmountingCallback}
           playlist='https://cdn.jwplayer.com/v2/media/1g8jjku3'
           library='https://cdn.jwplayer.com/libraries/lqsWlr4Z.js'
         />
@@ -171,7 +190,8 @@ class PlayerContainer extends React.Component {
           config={configDefaults}
           onBeforePlay={this.onBeforePlay}
           onPlay={this.onPlay}
-          didMountCallback={this.didMountCallback}
+          didMountCallback={this.playerMountedCallback}
+          willUnmountCallback={this.playerUnmountingCallback}
           playlist='https://cdn.jwplayer.com/v2/media/QcK3l9Uv'
           library='https://cdn.jwplayer.com/libraries/lqsWlr4Z.js'
         />
@@ -179,7 +199,8 @@ class PlayerContainer extends React.Component {
           config={configDefaults}
           onBeforePlay={this.onBeforePlay}
           onPlay={this.onPlay}
-          didMountCallback={this.didMountCallback}
+          didMountCallback={this.playerMountedCallback}
+          willUnmountCallback={this.playerUnmountingCallback}
           playlist='https://cdn.jwplayer.com/v2/playlists/B8FTSH9D'
           playlistIndex="1"
           library='https://cdn.jwplayer.com/libraries/lqsWlr4Z.js'
