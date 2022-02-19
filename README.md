@@ -10,7 +10,6 @@
 * Props
   * [Required Props](#required-props)
   * [Optional Props](#optional-props)
-  * [Events](#events)
   * [API Functionality](#api-functionality)
 * [Advanced Implementation Example](#advanced-implementation-example)
 * [Contributing](#contributing)
@@ -49,6 +48,8 @@ import JWPlayer from 'jwplayer-react';
 ### Custom playlist
 
 ``` javascript
+import JWPlayer from 'jwplayer-react';
+...
 const playlist = [{
   file: 'myfile.mp4',
   image: 'myPoster.jpg',
@@ -78,6 +79,7 @@ These props are required to instantient an instance of JW Player:
   * Must be a url to a jwplayer web player library. Required if jwplayer library not already instantiated on page (ie. if window.jwplayer is undefined).
   * Type: `string`
   * Example: `https://content.jwplatform.com/libraries/abcd1234.js`
+  <br>
 * `playlist` OR `file` OR `advertising` block with `oustream: true`
   * Player will require content in order to instantiate. See more [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference).
   * Type: `string` (for `file` or `playlist`) or `array` (for `playlist`) or `object` for `advertising`
@@ -85,34 +87,31 @@ These props are required to instantient an instance of JW Player:
 
 
 ## Optional Props
-* All config options can be individually passed as props. See the full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference), ie: `advertising`, `analytics`, `playlist`, `related`, `width`, `height`, etc.
-* You can also use a `config` prop: a JSON config object with all the available options/types of a standard player config.
+**All JW Player config options** can be used individually as props to configure a `jwplayer-react` player, i.e.,  `advertising`, `analytics`, `playlist`, `related`, `width`, and `height`. See the full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference). In addition, you may use the following props:
+
+* `config`
+  * JSON config object with all the available options/types available via [standard player configuration](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference)
+  * Type: `object`
+  * Example: `{ file: "path-to-video.mp4" }`
+  <br>
+* `on<Event>`, `once<Event>`
+  * `jwplayer-react` dynamically supports all events in JW Player. Props beginning with `on` or `once` are parsed and added as JW Player event handlers. Find the full list of supported events [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
+  * Type: `(event: PlayerEvent) => void`
+  * Examples:
+    `const callback = (event: { type: string, [key: string]: any }) => void`
+    * `onReady={callback}`: Executes callback every time `ready` event is triggered by player API. Identical to `jwplayer(id).on('ready', callback)`.
+    * `onComplete={callback}`: Executes callback every time `complete` event is triggered by player API. Identical to `jwplayer(id).on('complete', callback)`.
+    * `onceTime={callback}`: Executes callback the **first** time `time` event is triggered by player API. Identical to `jwplayer(id).once('time', callback)`.
+  <br>
 * `didMountCallback`
   * A callback triggered after component mounts. Can be used to expose the player API to other parts of your app.
-  * Type: ({api, id}) => void
+  * Type: `({ api: PlayerAPI, id: string }) => void`
   * Example: See [advanced implementation example](#advanced-implementation-example)
+  <br>
 * `willUnmountCallback`
   * A callback triggered before component unmounts. Can be used to fire any final api calls to player before it is removed, or to inform a higher order component that a player has been removed.
-  * Type: ({api, id}) => void
+  * Type: `({ api: PlayerAPI, id: string }) => void`
   * Example: See [advanced implementation example](#advanced-implementation-example)
-* `on<Event>`
-  * `jwplayer-react` dynamically supports all events in JW Player. Props beginning with `on` are parsed and added as JW Player event handlers. Find the full list of supported events [here]
-  * Examples:
-    * `onReady={callback}` => `playerInstance.on('ready', callback)`           // Executes callback every time `ready` event is triggered by player API
-    * `onComplete={callback}` => `playerInstance.on('complete', callback)`     // Executes callback every time `complete` event is triggered by player API
-    * `onTime={callback}` => `playerInstance.on('time', callback)`             // Executes callback every time `time` event is triggered by player API.
-* `once<Event>`
-  * `jwplayer-react` dynamically supports all events in JW Player. Props beginning with `once` are parsed and added as JW Player event handlers. Find the full list of supported events [here]
-  * Examples:
-    * `onceReady={callback}` => `playerInstance.once('ready', callback)`           // Executes callback the first time `ready` event is triggered by player API
-    * `onceComplete={callback}` => `playerInstance.once('complete', callback)`     // Executes callback the first time `complete` event is triggered by player API
-    * `onceTime={callback}` => `playerInstance.once('time', callback)`             // Executes callback the first time `time` event is triggered by player API.
-
-## Events
-(https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference).
-
-
-
 
 ## API Functionality
 For advanced usage,`jwplayer-react` creates an instance of the player API when mounted, and sets it to `this.player`, exposing all api functionality listed [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
@@ -125,7 +124,7 @@ For advanced usage,`jwplayer-react` creates an instance of the player API when m
 
 ``` javascript
 import React from 'react';
-import JWPlayer from 'jwplaye-react';
+import JWPlayer from 'jwplayer-react';
 
 class PlayerContainer extends React.Component {
   constructor(props) {
