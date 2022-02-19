@@ -27,7 +27,7 @@ class JWPlayer extends React.Component {
 
   loadPlayer(src) {
     if (!window.jwplayer && !src) throw new Error("JWPlayer React requires either a library prop, or a library script");
-    if (window.jwplayer) return new Promise.resolve(window.jwplayer);
+    if (window.jwplayer) return Promise.resolve(window.jwplayer);
 
     if (!this.playerLoadPromise) {
       this.playerLoadPromise = new Promise((res, rej) => {
