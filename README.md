@@ -148,7 +148,7 @@ class PlayerContainer extends React.Component {
     this.players[id] = null;
   }
 
-  // Custom script that prevents multiple players from playing simultaneously
+  // Prevent multiple players from playing simultaneously
   onBeforePlay(event) {
     Object.keys(this.players).forEach(playerId => {
       const player = this.players[playerId];
