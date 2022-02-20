@@ -13,7 +13,7 @@
   * [Required Props](#required-props)
   * [Optional Props](#optional-props)
   * [API Functionality](#api-functionality)
-* [Advanced Implementation Example](#advanced-implementation-example)
+* [Advanced Implementation Examples](#advanced-implementation-examples)
 * [Contributing](#contributing)
 
 ## Installation
@@ -120,9 +120,9 @@ For advanced usage,`jwplayer-react` creates an instance of the player API when m
 
 
 
-## Advanced Implementation Example
+## Advanced Implementation Examples
 
-[Interactive Example](https://codepen.io/afrophysics/pen/oNopMBK/8cd58c84536dc8fdd180ef206687558f)
+[Interactive Example #1](https://codesandbox.io/s/jwplayer-react-example-1-vwp2ej?file=/src/PlayerContainer.js)
 
 ``` javascript
 import React from 'react';
@@ -207,6 +207,93 @@ class PlayerContainer extends React.Component {
           library='https://cdn.jwplayer.com/libraries/lqsWlr4Z.js'
         />
       </div>
+    );
+  }
+}
+export default PlayerContainer;
+```
+
+
+[Interactive Example #2](https://codesandbox.io/s/jwplayer-react-example-2-8gwyc5?file=/src/PlayerContainer.js)
+
+``` javascript
+import React from 'react';
+import JWPlayer from 'jwplayer-react';
+
+class PlayerContainer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loaded: false
+    };
+    this.players = {};
+    this.onBeforePlay = this.onBeforePlay.bind(this);
+    this.didMountCallback = this.didMountCallback.bind(this);
+    this.loadPlayerLibrary();
+  }
+
+  // Load a player library
+  loadPlayerLibrary() {
+    const src = "https://cdn.jwplayer.com/libraries/lqsWlr4Z.js";
+    const script = document.createElement("script");
+    script.src = src;
+    script.type = "text/javascript";
+    script.onload = () => this.setState({ loaded: true }); // On load, we're ready to set up our player instances
+    document.body.append(script);
+  }
+
+  // Registers players to container as they mount
+  didMountCallback({ player, id }) {
+    this.players[id] = player;
+    const eventLog = document.getElementById("log");
+
+    // Log all events by player id.
+    player.on("all", (event) => {
+      const li = document.createElement("li");
+      li.innerText = `${id}: ${event}`;
+      eventLog.prepend(li);
+    });
+  }
+
+  // Prevent simultaneous playbacks
+  onBeforePlay(event) {
+    Object.keys(this.players).forEach((playerId) => {
+      const player = this.players[playerId];
+      const isPlaying = player.getState() === "playing";
+      if (isPlaying) {
+        player.pause();
+      }
+    });
+  }
+
+  render() {
+    // Re-usable defaults to use between multiple players.
+    const configDefaults = { width: 320, height: 180 };
+
+    return this.state.loaded ? (
+      <div className="players-container">
+        <JWPlayer
+          config={configDefaults}
+          onBeforePlay={this.onBeforePlay}
+          didMountCallback={this.didMountCallback}
+          playlist="https://cdn.jwplayer.com/v2/media/1g8jjku3"
+        />
+        <JWPlayer
+          config={configDefaults}
+          onBeforePlay={this.onBeforePlay}
+          didMountCallback={this.didMountCallback}
+          playlist="https://cdn.jwplayer.com/v2/media/QcK3l9Uv"
+        />
+        <JWPlayer
+          config={configDefaults}
+          onBeforePlay={this.onBeforePlay}
+          didMountCallback={this.didMountCallback}
+          playlist="https://cdn.jwplayer.com/v2/playlists/B8FTSH9D"
+          playlistIndex="1"
+        />
+      </div>
+    ) : (
+      "loading..."
     );
   }
 }
