@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/jwplayer/jwplayer-react/actions/workflows/webpack.yml/badge.svg)
 
-`<JWPlayer>` is a React Component for initializing an instance of JW Player's web player. It allows for any of the event hooks that can be used on the standard player, and provides access to the player API via `JWPlayer.api`.
+`<JWPlayer>` is a React Component that creates an instance of JW Player's web player. It allows for any of the use of any event hooks that can be used on the standard player (as props), and provides access to player's API via a `componentDidMount` callback.
 
 
 ## Contents
