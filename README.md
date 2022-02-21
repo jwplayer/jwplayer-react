@@ -96,9 +96,9 @@ These props are required to instantient an instance of JW Player:
   <br>
 * `on<Event>`, `once<Event>`
   * `jwplayer-react` dynamically supports all events in JW Player. Props beginning with `on` or `once` are parsed and added as JW Player event handlers. Find the full list of supported events [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
-  * Type: `(event: PlayerEvent) => void`
+  * Type: `(event: { type: string, [key: string]: any }) => void`
   * Examples:
-    `const callback = (event: { type: string, [key: string]: any }) => void`
+    `const callback = (event) => console.log(event)`
     * `onReady={callback}`: Executes callback every time `ready` event is triggered by player API. Identical to `jwplayer(id).on('ready', callback)`.
     * `onComplete={callback}`: Executes callback every time `complete` event is triggered by player API. Identical to `jwplayer(id).on('complete', callback)`.
     * `onceTime={callback}`: Executes callback the **first** time `time` event is triggered by player API. Identical to `jwplayer(id).once('time', callback)`.
