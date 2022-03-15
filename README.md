@@ -17,7 +17,7 @@
 ## Installation
 
 ```shell
-npm i https://github.com/zetagame/jwplayer-react
+npm i https://github.com/jwplayer/jwplayer-react
 ```
 
 ## Usage
