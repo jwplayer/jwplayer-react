@@ -7,7 +7,7 @@
 
 * [Installation](#installation)
 * [Usage](#usage)
-* Props
+* [Props](#props)
   * [Required Props](#required-props)
   * [Optional Props](#optional-props)
   * [API Functionality](#api-functionality)
