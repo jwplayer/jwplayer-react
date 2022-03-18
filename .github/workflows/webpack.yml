@@ -31,8 +31,6 @@ jobs:
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        echo "$GITHUB_REF_NAME"
-        git checkout "$GITHUB_REF_NAME"
         git add .
-        git commit -m "Update Badges"
-        git push origin "$GITHUB_REF_NAME"
+        git commit -am "Update Badges"
+        git push
