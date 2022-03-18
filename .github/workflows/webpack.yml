@@ -29,5 +29,8 @@ jobs:
         
     - if: ${{ matrix.node-version == '14.x' }}
       run: |
-        git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
-        git commit -m "Update badges"
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Update Badges"
+        git push
