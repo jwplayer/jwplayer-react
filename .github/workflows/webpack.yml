@@ -26,11 +26,14 @@ jobs:
       run: |
         npm install
         npm run ci
-        
+
     - if: ${{ matrix.node-version == '14.x' }}
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
         git add .
         git commit -m "Update Badges"
+        echo ${GITHUB_REF##*/}
+        echo ${{ github.server_url }}
+        git remote add origin ${{ github.server_url }}/${{ github.repository }}
         git push origin ${GITHUB_REF##*/}
