@@ -26,3 +26,9 @@ jobs:
       run: |
         npm install
         npm run ci
+
+    - name: Commit Badges
+      if: ${{ matrix.node-version == '14.x' }}
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Updated Badges
