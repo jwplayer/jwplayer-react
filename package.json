@@ -38,6 +38,7 @@
     "jsdom": "19.0.0",
     "make-coverage-badge": "1.2.0",
     "react": "17.0.2",
+    "react-dom": "^17.0.2",
     "react-test-renderer": "17.0.2",
     "webpack": "5.69.1",
     "webpack-cli": "4.9.2"
