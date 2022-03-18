@@ -7,6 +7,5 @@
         "react/destructuring-assignment": 0,
         "react/prop-types": 0,
         "no-plusplus": 0
-    },
-    "plugins": ["jsx-a11y"]
+    }
 }
