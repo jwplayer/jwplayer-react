@@ -1,80 +1,16 @@
 import React from 'react';
-import { configProps, generateUniqueId } from './util';
+import { generateConfig, generateUniqueId, loadPlayer } from './util';
 
 class JWPlayer extends React.Component {
   constructor(props) {
     super(props);
     this.ref = props.ref || React.createRef();
-    this.config = this.generateConfig(props);
+    this.config = generateConfig(props);
     this.player = null;
-    this.playerLoadPromise = this.loadPlayer(props.library);
+    this.playerLoadPromise = loadPlayer(props.library);
     this.didMountCallback = props.didMountCallback;
     this.willUnmountCallback = props.willUnmountCallback;
-    this.id = props.id || this.generatePlayerId();
-  }
-
-  createPlayer() {
-    const { config, ref } = this;
-    const view = ref.current;
-    if (!window.jwplayer) {
-      return this.playerLoadPromise.then(() => {
-        const setupConfig = Object.assign({}, window.jwDefaults, config);
-        return window.jwplayer(view.id).setup(setupConfig);
-      });
-    }
-
-    return window.jwplayer(view.id).setup(config);
-  }
-
-  loadPlayer(src) {
-    if (!window.jwplayer && !src) throw new Error("JWPlayer React requires either a library prop, or a library script");
-    if (window.jwplayer) return Promise.resolve(window.jwplayer);
-
-    if (!this.playerLoadPromise) {
-      this.playerLoadPromise = new Promise((res, rej) => {
-        const script = document.createElement('script');
-        script.onload = res;
-        script.onerror = rej;
-        script.src = src;
-
-        document.body.append(script);
-      });
-    }
-
-    return this.playerLoadPromise;
-  }
-
-  generatePlayerId() {
-    return generateUniqueId()
-  }
-
-  generateConfig(props) {
-    const config = {};
-
-    for (let key of configProps) {
-      if (key in props) config[key] = props[key];
-    }
-
-    return Object.assign({}, props.config, config);
-  }
-
-  createEventListeners() {
-    Object.keys(this.props).forEach(prop => {
-      const matchedOnce = prop.match('(?<=\^once).*') || [''];
-      const onceHandlerHane = matchedOnce[0].charAt(0).toLowerCase() + matchedOnce[0].slice(1);
-
-      if (!!onceHandlerHane) {
-        this.player.once(onceHandlerHane, this.props[prop]);
-        return;
-      }
-
-      const matchedOn = prop.match('(?<=\^on).*') || [''];
-      const eventHandlerName = matchedOn[0].charAt(0).toLowerCase() + matchedOn[0].slice(1);
-
-      if (!!eventHandlerName) {
-        this.player.on(eventHandlerName, this.props[prop]);
-      }
-    });
+    this.id = props.id || generateUniqueId();
   }
 
   async componentDidMount() {
@@ -99,8 +35,35 @@ class JWPlayer extends React.Component {
     }
   }
 
+  createPlayer() {
+    const { config, ref } = this;
+    const setupConfig = { ...window.jwDefaults, ...config };
+    const view = ref.current;
+
+    return this.playerLoadPromise.then(() => window.jwplayer(view.id).setup(setupConfig));
+  }
+
+  createEventListeners() {
+    Object.keys(this.props).forEach((prop) => {
+      const matchedOnce = prop.match('(?<=^once).*') || [''];
+      const onceHandlerName = matchedOnce[0].charAt(0).toLowerCase() + matchedOnce[0].slice(1);
+
+      if (onceHandlerName) {
+        this.player.once(onceHandlerName, this.props[prop]);
+        return;
+      }
+
+      const matchedOn = prop.match('(?<=^on).*') || [''];
+      const eventHandlerName = matchedOn[0].charAt(0).toLowerCase() + matchedOn[0].slice(1);
+
+      if (eventHandlerName) {
+        this.player.on(eventHandlerName, this.props[prop]);
+      }
+    });
+  }
+
   render() {
-    return <div id={this.id} ref={this.ref}></div>;
+    return <div id={this.id} ref={this.ref} />;
   }
 }
 

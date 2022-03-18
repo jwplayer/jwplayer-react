@@ -4,11 +4,14 @@
   "description": "A react component that creates an instance of JW Player",
   "main": "./lib/jwplayer-react.js",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "test": "jest --coverage",
+    "lint": "eslint ./src/**/* --fix",
+    "ci": "eslint & webpack && npm run test && make-coverage-badge"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zetagame/jwplayer-react.git"
+    "url": "git+https://github.com/jwplayer/jwplayer-react.git"
   },
   "keywords": [
     "jwplayer",
@@ -19,20 +22,35 @@
   "author": "Zachary Haigh",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zetagame/jwplayer-react/issues"
+    "url": "https://github.com/jwplayer/jwplayer-react/issues"
   },
-  "homepage": "https://github.com/zetagame/jwplayer-react#readme",
+  "homepage": "https://github.com/jwplayer/jwplayer-react#readme",
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*"
+    ]
+  },
   "devDependencies": {
-    "@babel/cli": "^7.17.3",
-    "@babel/core": "^7.17.5",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
-    "babel-loader": "^8.2.3",
-    "react": "^17.0.2",
-    "webpack": "^5.69.1",
-    "webpack-cli": "^4.9.2"
+    "@babel/cli": "7.17.3",
+    "@babel/core": "7.17.5",
+    "@babel/preset-env": "7.16.11",
+    "@babel/preset-react": "7.16.7",
+    "@testing-library/react": "12.1.4",
+    "@wojtekmaj/enzyme-adapter-react-17": "0.6.6",
+    "babel-jest": "27.5.1",
+    "babel-loader": "8.2.3",
+    "enzyme": "3.11.0",
+    "eslint": "8.11.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "jest": "27.5.1",
+    "jsdom": "19.0.0",
+    "make-coverage-badge": "1.2.0",
+    "react": "17.0.2",
+    "react-test-renderer": "17.0.2",
+    "webpack": "5.69.1",
+    "webpack-cli": "4.9.2"
   },
   "peerDependencies": {
-    "react": "^17.0.2"
+    "react": "17.0.2"
   }
 }
