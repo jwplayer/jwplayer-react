@@ -27,13 +27,8 @@ jobs:
         npm install
         npm run ci
 
-    - uses: actions/checkout@v2
     - name: Commit Badges
       if: ${{ matrix.node-version == '14.x' }}
-      run: |
-        git status
-        git add .
-        git config --global user.name github-actions
-        git config --global user.email github-actions@github.com
-        git commit -am "Updated Basges"
-        git push
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Updated Badges
