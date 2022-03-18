@@ -33,7 +33,4 @@ jobs:
         git config user.email github-actions@github.com
         git add .
         git commit -m "Update Badges"
-        echo ${{github.ref}##*/}
-        echo ${{ github.server_url }}
-        git remote add origin ${{ github.server_url }}/${{ github.repository }}
-        git push origin ${GITHUB_REF##*/}
+        git push origin ${{ github.ref.name }}
