@@ -33,3 +33,4 @@ jobs:
         git config user.email github-actions@github.com
         git add .
         git commit -m "Update Badges"
+        git push
