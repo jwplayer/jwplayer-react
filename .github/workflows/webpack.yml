@@ -31,6 +31,7 @@ jobs:
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
+        git checkout ${{ github.ref.name }}
         git add .
         git commit -m "Update Badges"
-        git push origin HEAD:${{ github.ref.name }}
+        git push origin ${{ github.ref.name }}
