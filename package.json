@@ -15,9 +15,9 @@
   "main": "./lib/jwplayer-react.js",
   "scripts": {
     "build": "webpack",
-    "ci": "npm run lint & webpack && npm run test && make-coverage-badge",
+    "ci": "npm run lint && webpack && npm run test",
     "lint": "eslint ./src/**/* --fix",
-    "test": "jest --coverage"
+    "test": "jest --coverage && make-coverage-badge"
   },
   "peerDependencies": {
     "react": "17.0.2"
