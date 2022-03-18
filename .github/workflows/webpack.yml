@@ -27,6 +27,6 @@ jobs:
         npm install
         npm run ci
         
-    - if: ${{ matrix.node-version === '14.x' }}
+    - if: ${{ matrix.node-version == '14.x' }}
       run: |
         git commit -m "Update badges"
