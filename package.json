@@ -2,33 +2,25 @@
   "name": "jwplayer-react",
   "version": "1.0.0",
   "description": "A react component that creates an instance of JW Player",
-  "main": "./lib/jwplayer-react.js",
-  "scripts": {
-    "build": "webpack",
-    "test": "jest --coverage",
-    "lint": "eslint ./src/**/* --fix",
-    "ci": "eslint & webpack && npm run test && make-coverage-badge"
-  },
+  "license": "MIT",
+  "author": "Zachary Haigh",
+  "homepage": "https://github.com/jwplayer/jwplayer-react#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jwplayer/jwplayer-react.git"
   },
-  "keywords": [
-    "jwplayer",
-    "jw",
-    "player",
-    "react"
-  ],
-  "author": "Zachary Haigh",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/jwplayer/jwplayer-react/issues"
   },
-  "homepage": "https://github.com/jwplayer/jwplayer-react#readme",
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*"
-    ]
+  "main": "./lib/jwplayer-react.js",
+  "scripts": {
+    "build": "webpack",
+    "ci": "eslint & webpack && npm run test && make-coverage-badge",
+    "lint": "eslint ./src/**/* --fix",
+    "test": "jest --coverage"
+  },
+  "peerDependencies": {
+    "react": "17.0.2"
   },
   "devDependencies": {
     "@babel/cli": "7.17.3",
@@ -50,7 +42,15 @@
     "webpack": "5.69.1",
     "webpack-cli": "4.9.2"
   },
-  "peerDependencies": {
-    "react": "17.0.2"
+  "keywords": [
+    "jw",
+    "jwplayer",
+    "player",
+    "react"
+  ],
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*"
+    ]
   }
 }
