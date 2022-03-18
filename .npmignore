@@ -1,4 +1,8 @@
 src
 demo
 .babelrc
+.eslintrc
 webpack.config.js
+coverage
+test
+package-lock.json

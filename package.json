@@ -15,7 +15,7 @@
   "main": "./lib/jwplayer-react.js",
   "scripts": {
     "build": "webpack",
-    "ci": "eslint & webpack && npm run test && make-coverage-badge",
+    "ci": "npm run lint & webpack && npm run test && make-coverage-badge",
     "lint": "eslint ./src/**/* --fix",
     "test": "jest --coverage"
   },
@@ -51,6 +51,9 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*"
+    ],
+    "coverageReporters": [
+      "json-summary"
     ]
   }
 }
