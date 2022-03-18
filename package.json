@@ -15,7 +15,7 @@
   "main": "./lib/jwplayer-react.js",
   "scripts": {
     "build": "webpack",
-    "ci": "npm run lint && webpack && npm run test",
+    "ci": "npm ci && webpack && npm run test && npm run lint",
     "lint": "eslint ./src/**/* --fix",
     "test": "jest --coverage && make-coverage-badge"
   },
@@ -34,6 +34,7 @@
     "enzyme": "3.11.0",
     "eslint": "8.11.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
     "jest": "27.5.1",
     "jsdom": "19.0.0",
     "make-coverage-badge": "1.2.0",
