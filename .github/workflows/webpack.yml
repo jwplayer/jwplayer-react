@@ -31,6 +31,8 @@ jobs:
     - name: Commit Badges
       if: ${{ matrix.node-version == '14.x' }}
       run: |
+        git status
+        git add .
         git config --global user.name github-actions
         git config --global user.email github-actions@github.com
         git commit -am "Updated Basges"
