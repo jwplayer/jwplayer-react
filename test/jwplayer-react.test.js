@@ -43,7 +43,7 @@ describe('setup', () => {
         expect(instance.id).toEqual(`jwplayer-${expectedInstance}`);
         // Invokes player setup with correct config
         expect(window.jwplayer(instance.id).setup.mock.calls.length).toBe(1);
-        expect(window.jwplayer(instance.id).setup.mock.calls[0][0]).toEqual({ playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3' });
+        expect(window.jwplayer(instance.id).setup.mock.calls[0][0]).toEqual({ playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3', isReactComponent: true });
     }
 
     it('sets up when jwplayer is pre-instantiated', (done) => {
@@ -93,6 +93,7 @@ describe('methods', () => {
             const setupConfig = window.jwplayer(comp.instance().id).setup.mock.calls[0][0];
             const expectedSetupConfig = {
                 floating: {},
+                isReactComponent: true,
                 playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3',
                 width: 500
             };
@@ -105,6 +106,7 @@ describe('methods', () => {
             const setupConfig = window.jwplayer(comp.instance().id).setup.mock.calls[0][0];
             const expectedSetupConfig = {
                 floating: {},
+                isReactComponent: true,
                 playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3',
                 width: 500,
                 height: 300
@@ -126,6 +128,7 @@ describe('methods', () => {
                 width: 720,
                 height: 480,
                 floating: {},
+                isReactComponent: true,
                 playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3'
             });
         });
