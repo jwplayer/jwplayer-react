@@ -32,5 +32,5 @@ export function generateConfig(props) {
     if (configProps.has(key)) config[key] = props[key];
   });
 
-  return { ...props.config, ...config };
+  return { ...props.config, ...config, isReactComponent: true };
 }
