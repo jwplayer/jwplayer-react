@@ -14,10 +14,16 @@
   },
   "main": "./lib/jwplayer-react.js",
   "scripts": {
-    "build": "webpack",
-    "ci": "npm ci && webpack && npm run test && npm run lint",
+    "build": "webpack && npm run badges:build:passing || npm run badges:build:failing",
+    "ci": "npm ci; npm run build; npm run test; npm run lint; npm run badges:license",
     "lint": "eslint ./src/**/* --fix",
-    "test": "jest --coverage && make-coverage-badge"
+    "test": "jest --coverage && make-coverage-badge && npm run badges:test:passing || npm run badges:test:failing",
+    "badges:build:passing": "badge build passed :brightgreen > ./badges/build.svg",
+    "badges:build:failing": "badge build failed :red > ./badges/build.svg",
+    "badges:test:passing": "badge tests passed :brightgreen > ./badges/test.svg",
+    "badges:test:failing": "badge tests failed :red > ./badges/test.svg",
+    "badges:license": "badge license mit :brightgreen > ./badges/license.svg"
+    
   },
   "peerDependencies": {
     "react": "17.0.2"
@@ -31,6 +37,7 @@
     "@wojtekmaj/enzyme-adapter-react-17": "0.6.6",
     "babel-jest": "27.5.1",
     "babel-loader": "8.2.3",
+    "badge-maker": "^3.3.1",
     "enzyme": "3.11.0",
     "eslint": "8.11.0",
     "eslint-config-airbnb": "^19.0.4",
