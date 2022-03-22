@@ -18,10 +18,10 @@
     "ci": "npm ci; npm run build; npm run test; npm run lint; npm run badges:license",
     "lint": "eslint ./src/**/* --fix",
     "test": "jest --coverage && make-coverage-badge && npm run badges:test:passing || npm run badges:test:failing",
-    "badges:build:passing": "badge build passed :brightgreen > ./badges/build.svg",
-    "badges:build:failing": "badge build failed :red > ./badges/build.svg",
-    "badges:test:passing": "badge tests passed :brightgreen > ./badges/test.svg",
-    "badges:test:failing": "badge tests failed :red > ./badges/test.svg",
+    "badges:build:passing": "badge build passing :brightgreen > ./badges/build.svg",
+    "badges:build:failing": "badge build failing :red > ./badges/build.svg",
+    "badges:test:passing": "badge tests passing :brightgreen > ./badges/test.svg",
+    "badges:test:failing": "badge tests failing :red > ./badges/test.svg",
     "badges:license": "badge license ISC :brightgreen > ./badges/license.svg"
     
   },
