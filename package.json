@@ -17,13 +17,13 @@
     "build": "webpack && npm run badges:build:passing || npm run badges:build:failing",
     "ci": "npm ci; npm run build; npm run test; npm run lint; npm run badges:license",
     "lint": "eslint ./src/**/* --fix",
-    "test": "jest --coverage && make-coverage-badge && npm run badges:test:passing || npm run badges:test:failing",
+    "test": "jest --coverage && npm run badges:coverage && npm run badges:test:passing || npm run badges:test:failing",
     "badges:build:passing": "badge build passing :brightgreen > ./badges/build.svg",
     "badges:build:failing": "badge build failing :red > ./badges/build.svg",
+    "badges:coverage": "node ./badges/util/coverage.js",
     "badges:test:passing": "badge tests passing :brightgreen > ./badges/test.svg",
     "badges:test:failing": "badge tests failing :red > ./badges/test.svg",
     "badges:license": "badge license ISC :brightgreen > ./badges/license.svg"
-    
   },
   "peerDependencies": {
     "react": "17.0.2"
@@ -46,9 +46,9 @@
     "eslint-plugin-react": "^7.29.4",
     "jest": "27.5.1",
     "jsdom": "19.0.0",
-    "make-coverage-badge": "1.2.0",
+    "mri": "1.2.0",
     "react": "17.0.2",
-    "react-dom": "^17.0.2",
+    "react-dom": "17.0.2",
     "react-test-renderer": "17.0.2",
     "webpack": "5.69.1",
     "webpack-cli": "4.9.2"
