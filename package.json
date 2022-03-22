@@ -22,7 +22,7 @@
     "badges:build:failing": "badge build failed :red > ./badges/build.svg",
     "badges:test:passing": "badge tests passed :brightgreen > ./badges/test.svg",
     "badges:test:failing": "badge tests failed :red > ./badges/test.svg",
-    "badges:license": "badge license MIT :brightgreen > ./badges/license.svg"
+    "badges:license": "badge license ISC :brightgreen > ./badges/license.svg"
     
   },
   "peerDependencies": {
