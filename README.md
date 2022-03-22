@@ -1,6 +1,6 @@
 # jwplayer-react
 
-![License](./badges/license.svg) ![CI/CD](https://github.com/jwplayer/jwplayer-react/actions/workflows/webpack.yml/badge.svg) ![Build](./badges/build.svg) ![Test Coverage](./coverage/badge.svg) ![Tests](./badges/test.svg)
+![License](./badges/license.svg) ![Build](./badges/build.svg) ![Test Coverage](./coverage/badge.svg) ![Tests](./badges/test.svg)
 
 `<JWPlayer>` is a React Component that creates an instance of JW Player's web player. It allows for the use of any player configuration options and/or event hooks that can be used on the standard player (as props), and provides access to player's API directly via a `componentDidMount` callback.
 
