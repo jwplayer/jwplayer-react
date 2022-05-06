@@ -19,7 +19,7 @@
 ## Installation
 
 ```shell
-npm i https://github.com/jwplayer/jwplayer-react
+npm i @jwplayer/jwplayer-react
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ npm i https://github.com/jwplayer/jwplayer-react
 ### Standard player with file/library
 
 ``` javascript
-import JWPlayer from 'jwplayer-react';
+import JWPlayer from '@jwplayer/jwplayer-react';
 ...
 <JWPlayer
   file='https://path-to-my.mp4'
@@ -38,7 +38,7 @@ import JWPlayer from 'jwplayer-react';
 ### Platform-hosted playlist
 
 ``` javascript
-import JWPlayer from 'jwplayer-react';
+import JWPlayer from '@jwplayer/jwplayer-react';
 ...
 <JWPlayer
   library='https://path-to-my-jwplayer-library.js'
@@ -50,7 +50,7 @@ import JWPlayer from 'jwplayer-react';
 ### Custom playlist
 
 ``` javascript
-import JWPlayer from 'jwplayer-react';
+import JWPlayer from '@jwplayer/jwplayer-react';
 ...
 const playlist = [{
   file: 'myfile.mp4',
@@ -122,11 +122,11 @@ For advanced usage,`jwplayer-react` creates an instance of the player API when m
 
 ## Advanced Implementation Examples
 
-[Interactive Example #1](https://codesandbox.io/s/jwplayer-react-example-1-vwp2ej?file=/src/PlayerContainer.js)
+[Interactive Example #1](https://codesandbox.io/s/jwplayer-react-example-1-forked-ctkevf?file=/src/PlayerContainer.js)
 
 ``` javascript
 import React from 'react';
-import JWPlayer from 'jwplayer-react';
+import JWPlayer from '@jwplayer/jwplayer-react';
 
 class PlayerContainer extends React.Component {
   constructor(props) {
@@ -214,11 +214,11 @@ export default PlayerContainer;
 ```
 
 
-[Interactive Example #2](https://codesandbox.io/s/jwplayer-react-example-2-8gwyc5?file=/src/PlayerContainer.js)
+[Interactive Example #2](https://codesandbox.io/s/jwplayer-react-example-2-forked-kl16vj?file=/src/PlayerContainer.js)
 
 ``` javascript
 import React from 'react';
-import JWPlayer from 'jwplayer-react';
+import JWPlayer from '@jwplayer/jwplayer-react';
 
 class PlayerContainer extends React.Component {
   constructor(props) {
