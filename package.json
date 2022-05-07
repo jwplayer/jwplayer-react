@@ -1,6 +1,6 @@
 {
   "name": "@jwplayer/jwplayer-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A react component that creates an instance of JW Player",
   "license": "MIT",
   "author": "Zachary Haigh",
