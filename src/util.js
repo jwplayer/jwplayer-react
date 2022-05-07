@@ -7,22 +7,22 @@ export function generateUniqueId() {
   return id;
 }
 
-export function createPlayerLoadPromise(src) {
+export function createPlayerLoadPromise(url) {
   return new Promise((res, rej) => {
     const script = document.createElement('script');
     script.onload = res;
     script.onerror = rej;
-    script.src = src;
+    script.src = url;
 
     document.body.append(script);
   });
 }
 
-export function loadPlayer(src) {
+export function loadPlayer(url) {
   if (!window.jwplayer && !src) throw new Error('jwplayer-react requires either a library prop, or a library script');
   if (window.jwplayer) return Promise.resolve();
 
-  return createPlayerLoadPromise();
+  return createPlayerLoadPromise(url);
 }
 
 export function generateConfig(props) {
