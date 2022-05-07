@@ -19,7 +19,7 @@ export function createPlayerLoadPromise(url) {
 }
 
 export function loadPlayer(url) {
-  if (!window.jwplayer && !src) throw new Error('jwplayer-react requires either a library prop, or a library script');
+  if (!window.jwplayer && !url) throw new Error('jwplayer-react requires either a library prop, or a library script');
   if (window.jwplayer) return Promise.resolve();
 
   return createPlayerLoadPromise(url);
