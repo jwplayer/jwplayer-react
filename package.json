@@ -26,7 +26,7 @@
     "badges:license": "badge license ISC :brightgreen > ./badges/license.svg"
   },
   "peerDependencies": {
-    "react": "17.0.2"
+    "react": ">=17.0.2"
   },
   "devDependencies": {
     "@babel/cli": "7.17.3",
