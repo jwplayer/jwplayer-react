@@ -154,6 +154,16 @@ describe('methods', () => {
     });
 
     describe('updateOnEventListener', () => {
+        it('does not fire on handler on invalid event', async () => {
+            const component = await createMountedComponent();
+            component.instance().player.on = (name, handler) => {handler('invalid')};
+
+            let fired = false;
+            const nextProps = {onPlay: () => {fired = true}};
+            component.instance().updateOnEventListener(nextProps);
+            expect(fired).toBe(false);
+        });
+
         it('fires on handler on event', async () => {
             const component = await createMountedComponent();
             component.instance().player.on = (name, handler) => {handler('play')};
@@ -166,7 +176,7 @@ describe('methods', () => {
 
         it('fires all handler on all event', async () => {
             const component = await createMountedComponent();
-            component.instance().player.on = (name, handler) => {handler('all')};
+            component.instance().player.on = (name, handler) => {handler(name)};
 
             let fired = false;
             const nextProps = {onAll: () => {fired = true}};
