@@ -6,9 +6,11 @@ import React from 'react';
 import Enzyme, { mount } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import JWPlayer from '../src/jwplayer';
-import { mockLoading, cleanupMockLoading, mockLibrary, players } from './util';
+import { mockLibrary, players } from './util';
 
 Enzyme.configure({ adapter: new Adapter() });
+
+const noop = () => {};
 
 const playlist = 'https://cdn.jwplayer.com/v2/media/1g8jjku3';
 const library = 'https://cdn.jwplayer.com/libraries/lqsWlr4Z.js';
@@ -17,6 +19,10 @@ let expectedInstance = -1;
 beforeEach(() => {
     window.jwplayer = mockLibrary;
 });
+
+afterEach(() => {
+    window.jwplayer = null;
+})
 
 describe('setup', () => {
     let component, mounted, instance;
@@ -56,8 +62,12 @@ describe('setup', () => {
 
     it('Errors with no library and falsey window.jwplayer', async () => {
         window.jwplayer = null;
+        const _consoleError = console.error;
+        console.error = jest.fn();
+
         await expect(setupTest).rejects.toThrow("jwplayer-react requires either a library prop, or a library script");
         
+        console.error = _consoleError;
     });
 
     it('creates a script tag when mounted if window.jwplayer is not defined', () => {
@@ -136,43 +146,79 @@ describe('methods', () => {
     });
 
     it('createEventListeners', async () => {
-        window.jwplayer = mockLibrary;
-        const noop = () => {};
         const component = await createMountedComponent({ onReady: noop, onPlay: noop, oncePause: noop});
         const id = component.instance().id;
         expect(window.jwplayer(id).once.mock.calls.length).toBe(1);
-        expect(window.jwplayer(id).on.mock.calls.length).toBe(2);
-        expect(window.jwplayer(id).on.mock.calls).toContainEqual(['ready', noop]);
-        expect(window.jwplayer(id).on.mock.calls).toContainEqual(['play', noop]);
-        expect(window.jwplayer(id).once.mock.calls).toContainEqual(['pause', noop]);
+        expect(window.jwplayer(id).on.mock.calls.length).toBe(1);
+        expect(window.jwplayer(id).on.mock.calls).toContainEqual(['all', expect.any(Function)]);
+    });
+
+    describe('updateOnEventListener', () => {
+        it('fires on handler on event', async () => {
+            const component = await createMountedComponent();
+            component.instance().player.on = (name, handler) => {handler('play')};
+
+            let fired = false;
+            const nextProps = {onPlay: () => {fired = true}};
+            component.instance().updateOnEventListener(nextProps);
+            expect(fired).toBe(true);
+        });
+
+        it('fires all handler on all event', async () => {
+            const component = await createMountedComponent();
+            component.instance().player.on = (name, handler) => {handler('all')};
+
+            let fired = false;
+            const nextProps = {onAll: () => {fired = true}};
+            component.instance().updateOnEventListener(nextProps);
+            expect(fired).toBe(true);
+        });
+
+        it('removes previous on event listener', async () => {
+            const component = await createMountedComponent();
+            const offSpy = component.instance().player.off;
+
+            const nextProps = {onPlay: noop};
+            component.instance().updateOnEventListener(nextProps);
+            expect(offSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe('didOnEventsChange', () => {
+        it('should return false if on event props did not change', async () => {
+            const component = await createMountedComponent();
+            const nextProps = {unsupportedProperty: 3};
+            const eventsChange = component.instance().didOnEventsChange(nextProps);
+            expect(eventsChange).toBe(false);
+        });
+
+        it('should return true if on event props changed', async () => {
+            const component = await createMountedComponent();
+            const nextProps = {onPlay: noop};
+            const eventsChange = component.instance().didOnEventsChange(nextProps);
+            expect(eventsChange).toBe(true);
+        });
     });
 
     describe('lifecycle', () => {
         it('mounts with callback', async () => {
-            window.jwplayer = mockLibrary;
-            
-            const noop = jest.fn();
-            const mounted = await createMountedComponent({didMountCallback:(...args) => noop(...args)});
+            const spy = jest.fn();
+            const mounted = await createMountedComponent({didMountCallback:(...args) => spy(...args)});
             await mounted.instance().componentDidMount();
-            expect(noop).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
         });
 
         it('unmounts with callback', async () => {
-            window.jwplayer = mockLibrary;
-            
-            const noop = jest.fn();
-            const mounted = await createMountedComponent({willUnmountCallback:(...args) => noop(...args)});
+            const spy = jest.fn();
+            const mounted = await createMountedComponent({willUnmountCallback:(...args) => spy(...args)});
             const removeSpy = mounted.instance().player.remove
 
             mounted.unmount();
-            expect(noop).toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
             expect(removeSpy).toHaveBeenCalled();
         });
 
         it('can unmount without callback', async () => {
-            window.jwplayer = mockLibrary;
-            
-            const noop = jest.fn();
             const mounted = await createMountedComponent();
             const removeSpy = mounted.instance().player.remove
 
@@ -181,12 +227,23 @@ describe('methods', () => {
         });
 
         it('still unmounts if player externally destroyed', async () => {
-            window.jwplayer = mockLibrary;
-            
-            const noop = jest.fn();
             const mounted = await createMountedComponent();
             mounted.instance().player = null;
             mounted.unmount();
+        });
+
+        it('should update component if props have changed', async () => {
+            const component = await createMountedComponent();
+            const nextProps = {unsupportedProperty: 3};
+            const shouldUpdate = component.instance().shouldComponentUpdate(nextProps);
+            expect(shouldUpdate).toBe(true);
+        });
+
+        it('should not update component if on event props change', async () => {
+            const component = await createMountedComponent();
+            const nextProps = {onPlay: noop};
+            const shouldUpdate = component.instance().shouldComponentUpdate(nextProps);
+            expect(shouldUpdate).toBe(false);
         });
     });
 });
