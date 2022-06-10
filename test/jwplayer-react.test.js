@@ -55,11 +55,8 @@ describe('setup', () => {
     });
 
     it('Errors with no library and falsey window.jwplayer', async () => {
-        const _consoleError = console.error;
-        console.error = jest.fn();
         window.jwplayer = null;
         await expect(setupTest).rejects.toThrow("jwplayer-react requires either a library prop, or a library script");
-        console.error = _consoleError;
         
     });
 
