@@ -34,3 +34,8 @@ export function generateConfig(props) {
 
   return { ...props.config, ...config, isReactComponent: true };
 }
+
+export function getHandlerName(prop, regex) {
+  const matchedOn = prop.match(regex) || [''];
+  return matchedOn[0].charAt(0).toLowerCase() + matchedOn[0].slice(1);
+}

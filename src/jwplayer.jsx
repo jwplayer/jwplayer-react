@@ -1,6 +1,24 @@
 import React from 'react';
-import { generateConfig, generateUniqueId, loadPlayer } from './util';
+import {
+  ALL, ON_REGEX, ONCE_REGEX,
+} from './const';
+import {
+  generateConfig, generateUniqueId, loadPlayer, getHandlerName,
+} from './util';
 
+function createOnEventHandler(props) {
+  return (name, optReturn) => {
+    Object.keys(props).forEach((prop) => {
+      const onHandlerName = getHandlerName(prop, ON_REGEX);
+      if (onHandlerName === name) {
+        props[prop](optReturn);
+      }
+      if (onHandlerName === ALL) {
+        props[prop](name, optReturn);
+      }
+    });
+  };
+}
 class JWPlayer extends React.Component {
   constructor(props) {
     super(props);
@@ -23,6 +41,14 @@ class JWPlayer extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps) {
+    if (this.didOnEventsChange(nextProps)) {
+      this.updateOnEventListener(nextProps);
+      return false;
+    }
+    return true;
+  }
+
   componentWillUnmount() {
     if (this.willUnmountCallback) {
       const { player, id } = this;
@@ -30,6 +56,7 @@ class JWPlayer extends React.Component {
     }
 
     if (this.player) {
+      this.player.off();
       this.player.remove();
       this.player = null;
     }
@@ -43,23 +70,34 @@ class JWPlayer extends React.Component {
     return this.playerLoadPromise.then(() => window.jwplayer(view.id).setup(setupConfig));
   }
 
+  didOnEventsChange(nextProps) {
+    const onEventFilter = (prop) => prop.match(ON_REGEX);
+    const currEvents = Object.keys(this.props).filter(onEventFilter);
+    const nextEvents = Object.keys(nextProps).filter(onEventFilter);
+    const newEvents = nextEvents.some((event) => currEvents.indexOf(event) === -1);
+
+    return nextEvents.length < currEvents.length
+      || nextEvents.length > currEvents.length
+      || newEvents;
+  }
+
   createEventListeners() {
     Object.keys(this.props).forEach((prop) => {
-      const matchedOnce = prop.match('(?<=^once).*') || [''];
-      const onceHandlerName = matchedOnce[0].charAt(0).toLowerCase() + matchedOnce[0].slice(1);
-
+      const onceHandlerName = getHandlerName(prop, ONCE_REGEX);
       if (onceHandlerName) {
         this.player.once(onceHandlerName, this.props[prop]);
-        return;
-      }
-
-      const matchedOn = prop.match('(?<=^on).*') || [''];
-      const eventHandlerName = matchedOn[0].charAt(0).toLowerCase() + matchedOn[0].slice(1);
-
-      if (eventHandlerName) {
-        this.player.on(eventHandlerName, this.props[prop]);
       }
     });
+
+    const onHandler = createOnEventHandler(this.props);
+    this.player.on(ALL, onHandler);
+  }
+
+  updateOnEventListener(nextProps) {
+    this.player.off(ALL);
+
+    const onHandler = createOnEventHandler(nextProps);
+    this.player.on(ALL, onHandler);
   }
 
   render() {
