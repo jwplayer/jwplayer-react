@@ -22,7 +22,7 @@ beforeEach(() => {
 
 afterEach(() => {
     window.jwplayer = null;
-})
+});
 
 describe('setup', () => {
     let component, mounted, instance;
@@ -50,7 +50,7 @@ describe('setup', () => {
         // Invokes player setup with correct config
         expect(window.jwplayer(instance.id).setup.mock.calls.length).toBe(1);
         expect(window.jwplayer(instance.id).setup.mock.calls[0][0]).toEqual({ playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3', isReactComponent: true });
-    }
+    };
 
     it('sets up when jwplayer is pre-instantiated', (done) => {
         setupTest({ playlist }).then(checkTests).then(done);
@@ -83,7 +83,7 @@ describe('methods', () => {
         const component = <JWPlayer library={library} playlist={playlist} {...props} />;
         const mounted = await mount(component);
         return mounted;
-    }
+    };
 
     describe('generateId', () => {
         it('increments index when generating unique ID', async () => {
@@ -130,7 +130,7 @@ describe('methods', () => {
                 width: 400,
                 height: 300,
                 floating: {}
-            }
+            };
             const comp = await createMountedComponent({ config: baseConfig });
             const setupConfig = window.jwplayer(comp.instance().id).setup.mock.calls[0][0];
             window.jwDefaults = {};
