@@ -45,16 +45,16 @@ class JWPlayer extends React.Component {
 
   createEventListeners() {
     Object.keys(this.props).forEach((prop) => {
-      const matchedOnce = prop.match('(?<=^once).*') || [''];
-      const onceHandlerName = matchedOnce[0].charAt(0).toLowerCase() + matchedOnce[0].slice(1);
+      const matchedOnce = prop.match('^once(.*)') || ['', ''];
+      const onceHandlerName = matchedOnce[1].charAt(0).toLowerCase() + matchedOnce[1].slice(1);
 
       if (onceHandlerName) {
         this.player.once(onceHandlerName, this.props[prop]);
         return;
       }
 
-      const matchedOn = prop.match('(?<=^on).*') || [''];
-      const eventHandlerName = matchedOn[0].charAt(0).toLowerCase() + matchedOn[0].slice(1);
+      const matchedOn = prop.match('^on(.*)') || ['', ''];
+      const eventHandlerName = matchedOn[1].charAt(0).toLowerCase() + matchedOn[1].slice(1);
 
       if (eventHandlerName) {
         this.player.on(eventHandlerName, this.props[prop]);
