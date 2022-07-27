@@ -74,7 +74,8 @@ class JWPlayer extends React.Component {
     const onEventFilter = (prop) => prop.match(ON_REGEX);
     const currEvents = Object.keys(this.props).filter(onEventFilter);
     const nextEvents = Object.keys(nextProps).filter(onEventFilter);
-    const newEvents = nextEvents.some((event) => currEvents.indexOf(event) === -1);
+    const newEvents = nextEvents.some((event) => currEvents.indexOf(event) === -1
+      || nextProps[event] !== this.props[event]);
 
     return nextEvents.length < currEvents.length
       || nextEvents.length > currEvents.length

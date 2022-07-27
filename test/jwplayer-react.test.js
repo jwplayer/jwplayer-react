@@ -202,8 +202,22 @@ describe('methods', () => {
             expect(eventsChange).toBe(false);
         });
 
-        it('should return true if on event props changed', async () => {
+        it('should return true if on event prop was added', async () => {
             const component = await createMountedComponent();
+            const nextProps = {onPlay: noop};
+            const eventsChange = component.instance().didOnEventsChange(nextProps);
+            expect(eventsChange).toBe(true);
+        });
+
+        it('should return true if on event prop was removed', async () => {
+            const component = await createMountedComponent({onPlay: noop});
+            const nextProps = {};
+            const eventsChange = component.instance().didOnEventsChange(nextProps);
+            expect(eventsChange).toBe(true);
+        });
+
+        it('should return true if on event prop was changed', async () => {
+            const component = await createMountedComponent({onPlay: jest.fn()});
             const nextProps = {onPlay: noop};
             const eventsChange = component.instance().didOnEventsChange(nextProps);
             expect(eventsChange).toBe(true);
