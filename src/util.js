@@ -36,6 +36,8 @@ export function generateConfig(props) {
 }
 
 export function getHandlerName(prop, regex) {
-  const matchedOn = prop.match(regex) || ['', ''];
-  return matchedOn[1].charAt(0).toLowerCase() + matchedOn[1].slice(1);
+  const match = prop.match(regex) || ['', ''];
+
+  // lowercase the first letter of the match and return
+  return match[1].charAt(0).toLowerCase() + match[1].slice(1);
 }

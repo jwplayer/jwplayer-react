@@ -29,6 +29,7 @@ class JWPlayer extends React.Component {
     this.didMountCallback = props.didMountCallback;
     this.willUnmountCallback = props.willUnmountCallback;
     this.id = props.id || generateUniqueId();
+    this.onHandler = null;
   }
 
   async componentDidMount() {
@@ -72,14 +73,17 @@ class JWPlayer extends React.Component {
 
   didOnEventsChange(nextProps) {
     const onEventFilter = (prop) => prop.match(ON_REGEX);
-    const currEvents = Object.keys(this.props).filter(onEventFilter);
-    const nextEvents = Object.keys(nextProps).filter(onEventFilter);
-    const newEvents = nextEvents.some((event) => currEvents.indexOf(event) === -1
+    const currEvents = Object.keys(this.props).filter(onEventFilter).sort();
+    const nextEvents = Object.keys(nextProps).filter(onEventFilter).sort();
+
+    if (nextEvents.length !== currEvents.length) {
+      return true;
+    }
+
+    const newEvents = nextEvents.some((event, index) => currEvents[index] !== event
       || nextProps[event] !== this.props[event]);
 
-    return nextEvents.length < currEvents.length
-      || nextEvents.length > currEvents.length
-      || newEvents;
+    return newEvents;
   }
 
   createEventListeners() {
@@ -90,15 +94,16 @@ class JWPlayer extends React.Component {
       }
     });
 
-    const onHandler = createOnEventHandler(this.props);
-    this.player.on(ALL, onHandler);
+    // each on event is handled through the on('ALL') event listener instead of its own listener
+    this.onHandler = createOnEventHandler(this.props);
+    this.player.on(ALL, this.onHandler);
   }
 
   updateOnEventListener(nextProps) {
-    this.player.off(ALL);
+    this.player.off(ALL, this.onHandler);
 
-    const onHandler = createOnEventHandler(nextProps);
-    this.player.on(ALL, onHandler);
+    this.onHandler = createOnEventHandler(nextProps);
+    this.player.on(ALL, this.onHandler);
   }
 
   render() {
