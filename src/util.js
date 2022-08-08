@@ -34,3 +34,10 @@ export function generateConfig(props) {
 
   return { ...props.config, ...config, isReactComponent: true };
 }
+
+export function getHandlerName(prop, regex) {
+  const match = prop.match(regex) || ['', ''];
+
+  // lowercase the first letter of the match and return
+  return match[1].charAt(0).toLowerCase() + match[1].slice(1);
+}
