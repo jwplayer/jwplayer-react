@@ -100,7 +100,9 @@ class JWPlayer extends React.Component {
   }
 
   updateOnEventListener(nextProps) {
-    this.player.off(ALL, this.onHandler);
+    if (this.onHandler) {
+      this.player.off(ALL, this.onHandler);
+    }
 
     this.onHandler = createOnEventHandler(nextProps);
     this.player.on(ALL, this.onHandler);

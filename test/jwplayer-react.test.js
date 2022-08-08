@@ -184,6 +184,16 @@ describe('methods', () => {
             expect(fired).toBe(true);
         });
 
+        it('does not remove previous on event listener if it does not exist', async () => {
+            const component = await createMountedComponent();
+            const offSpy = component.instance().player.off;
+
+            const nextProps = {onPlay: noop};
+            component.instance().onHandler = null;
+            component.instance().updateOnEventListener(nextProps);
+            expect(offSpy).not.toHaveBeenCalled();
+        });
+
         it('removes previous on event listener', async () => {
             const component = await createMountedComponent();
             const offSpy = component.instance().player.off;
