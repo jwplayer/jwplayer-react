@@ -107,12 +107,12 @@ These props are required to instantient an instance of JW Player:
   <br>
 * `didMountCallback`
   * A callback triggered after component mounts. Can be used to expose the player API to other parts of your app.
-  * Type: `({ api: PlayerAPI, id: string }) => void`
+  * Type: `({ player: PlayerAPI, id: string }) => void`
   * Example: See [advanced implementation example](#advanced-implementation-examples)
   <br>
 * `willUnmountCallback`
   * A callback triggered before component unmounts. Can be used to fire any final api calls to player before it is removed, or to inform a higher order component that a player has been removed.
-  * Type: `({ api: PlayerAPI, id: string }) => void`
+  * Type: `({ player: PlayerAPI, id: string }) => void`
   * Example: See [advanced implementation example](#advanced-implementation-examples)
 
 ## API Functionality
