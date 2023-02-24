@@ -43,11 +43,13 @@ class JWPlayer extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    if (this.didOnEventsChange(nextProps)) {
-      this.updateOnEventListener(nextProps);
-      return false;
+    if (this.player) {
+      if (this.didOnEventsChange(nextProps)) {
+        this.updateOnEventListener(nextProps);
+        return false;
+      }
+      return true;
     }
-    return true;
   }
 
   componentWillUnmount() {
