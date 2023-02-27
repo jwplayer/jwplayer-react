@@ -279,5 +279,12 @@ describe('methods', () => {
             const shouldUpdate = component.instance().shouldComponentUpdate(nextProps);
             expect(shouldUpdate).toBe(false);
         });
+
+        it('should not update component if player does not exist', async () => {
+            const component = await createMountedComponent();
+            component.instance().player = null;
+            const shouldUpdate = component.instance().shouldComponentUpdate({});
+            expect(shouldUpdate).toBe(false);
+        });
     });
 });
