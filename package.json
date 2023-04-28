@@ -66,5 +66,9 @@
     "coverageReporters": [
       "json-summary"
     ]
+  },
+  "dependencies": {
+    "@jwplayer/jwplayer-react": "^1.1.1",
+    "@types/jwplayer": "^8.2.13"
   }
 }
