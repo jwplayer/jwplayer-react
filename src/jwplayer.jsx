@@ -31,7 +31,7 @@ class JWPlayer extends React.Component {
     this.onHandler = null;
     this.library = props.library;
   }
-  
+
   async componentDidMount() {
     await loadPlayer(this.library);
     this.player = this.createPlayer();
