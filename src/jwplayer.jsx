@@ -25,15 +25,16 @@ class JWPlayer extends React.Component {
     this.ref = props.ref || React.createRef();
     this.config = generateConfig(props);
     this.player = null;
-    this.playerLoadPromise = loadPlayer(props.library);
     this.didMountCallback = props.didMountCallback;
     this.willUnmountCallback = props.willUnmountCallback;
     this.id = props.id || generateUniqueId();
     this.onHandler = null;
+    this.library = props.library;
   }
-
+  
   async componentDidMount() {
-    this.player = await this.createPlayer();
+    await loadPlayer(this.library);
+    this.player = this.createPlayer();
     this.createEventListeners();
 
     if (this.didMountCallback) {
@@ -73,7 +74,7 @@ class JWPlayer extends React.Component {
     const setupConfig = { ...window.jwDefaults, ...config };
     const view = ref.current;
 
-    return this.playerLoadPromise.then(() => window.jwplayer(view.id).setup(setupConfig));
+    return window.jwplayer(view.id).setup(setupConfig);
   }
 
   didOnEventsChange(nextProps) {
