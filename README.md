@@ -87,7 +87,7 @@ These props are required to instantient an instance of JW Player:
   * Type: `string` (for `file` or `playlist`) or `array` (for `playlist`) or `object` for `advertising`
   * Example: `https://cdn.jwplayer.com/v2/playlists/abcd1234`
 
-If you are not using a cloud hosted player you will also have to give it a license key via the config prop:
+If you are not using a cloud hosted player you will need to provide a license key via the config prop. This prop can also be used to pass additional player config options.
 
 * `config`
   * JSON config object with all the available options/types available via [standard player configuration](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference)
