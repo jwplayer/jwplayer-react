@@ -1,5 +1,6 @@
 declare module '@jwplayer/jwplayer-react' {
     import React from 'react';
+    import jwplayer from './jwplayer';
 
     /**
      * Example: {"2500":"High","1000":"Medium"}
@@ -53,7 +54,7 @@ declare module '@jwplayer/jwplayer-react' {
         playlistIndex?: number;
         repeat?: boolean;
     }
-    
+
     type MediaType = 'aac' | 'f4a' | 'f4v' | 'hls' | 'm3u' | 'm4v' | 'mov' | 'mp3' | 'mp4' | 'mpeg' | 'oga' | 'ogg' | 'ogv' | 'vorbis' | 'webm';
 
     interface MediaConfig {
@@ -76,6 +77,7 @@ declare module '@jwplayer/jwplayer-react' {
         preload?: Preload;
     }
 
+    /* eslint-disable max-len */
     export type JWPlayerConfig = AppearanceConfig & BehaviorConfig & MediaConfig & RenderAndLoadingConfig;
 
     export interface JWPlayer extends jwplayer.JWPlayer {
@@ -87,7 +89,7 @@ declare module '@jwplayer/jwplayer-react' {
         player: JWPlayer;
     }
 
-    type DidMountCallback = (arguments: DidMountCallbackArguments) => void;
+    type DidMountCallback = () => void;
 
     export interface JWPlayerProps extends JWPlayerConfig {
         didMountCallback?: DidMountCallback;

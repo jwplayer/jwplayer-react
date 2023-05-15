@@ -7,5 +7,12 @@
         "react/destructuring-assignment": 0,
         "react/prop-types": 0,
         "no-plusplus": 0
-    }
+    },
+    "overrides": [
+        {
+          "files": ["./src/*.ts"],
+          "parser": "@typescript-eslint/parser",
+          "plugins": ["@typescript-eslint"]
+        }
+    ] 
 }
