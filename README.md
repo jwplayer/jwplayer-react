@@ -98,11 +98,6 @@ If you are not using a cloud hosted player you will need to provide a license ke
 ## Optional Props
 **All JW Player config options** can be used individually as props to configure a `jwplayer-react` player, i.e.,  `advertising`, `analytics`, `playlist`, `related`, `width`, and `height`. See the full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference). In addition, you may use the following props:
 
-* `config`
-  * JSON config object with all the available options/types available via [standard player configuration](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference)
-  * Type: `object`
-  * Example: `{ file: "path-to-video.mp4" }`
-  <br>
 * `on<Event>`, `once<Event>`
   * `jwplayer-react` dynamically supports all events in JW Player. Props beginning with `on` or `once` are parsed and added as JW Player event handlers. Find the full list of supported events [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
   * Type: `(event: { type: string, [key: string]: any }) => void`
