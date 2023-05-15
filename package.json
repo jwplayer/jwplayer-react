@@ -34,6 +34,8 @@
     "@babel/preset-env": "7.16.11",
     "@babel/preset-react": "7.16.7",
     "@testing-library/react": "12.1.4",
+    "@typescript-eslint/eslint-plugin": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.6",
     "@wojtekmaj/enzyme-adapter-react-17": "0.6.6",
     "babel-jest": "27.5.1",
     "babel-loader": "8.2.3",
@@ -50,8 +52,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-test-renderer": "17.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.59.6",
-    "@typescript-eslint/parser": "^5.59.6",
+    "typescript": "^5.0.4",
     "webpack": "5.69.1",
     "webpack-cli": "4.9.2"
   },
