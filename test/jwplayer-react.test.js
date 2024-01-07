@@ -13,7 +13,7 @@ Enzyme.configure({ adapter: new Adapter() });
 const noop = () => {};
 
 const playlist = 'https://cdn.jwplayer.com/v2/media/1g8jjku3';
-const library = 'https://cdn.jwplayer.com/libraries/lqsWlr4Z.js';
+const library = 'https://cdn.jwplayer.com/libraries/IDzF9Zmk.js';
 let expectedInstance = -1;
 
 beforeEach(() => {

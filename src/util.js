@@ -7,22 +7,24 @@ export function generateUniqueId() {
   return id;
 }
 
-export function createPlayerLoadPromise(url) {
+export function createPlayerLoadPromise(url, isAsync) {
   return new Promise((res, rej) => {
     const script = document.createElement('script');
     script.onload = res;
     script.onerror = rej;
     script.src = url;
+    // Optional to add script async for better performance
+    if (isAsync) script.setAttribute('async', '');
 
     document.body.append(script);
   });
 }
 
-export function loadPlayer(url) {
+export function loadPlayer(url, isScriptAsync = false) {
   if (!window.jwplayer && !url) throw new Error('jwplayer-react requires either a library prop, or a library script');
   if (window.jwplayer) return Promise.resolve();
 
-  return createPlayerLoadPromise(url);
+  return createPlayerLoadPromise(url, isScriptAsync);
 }
 
 export function generateConfig(props) {
