@@ -89,7 +89,7 @@ declare module '@jwplayer/jwplayer-react' {
         player: JWPlayer;
     }
 
-    type DidMountCallback = () => void;
+    type DidMountCallback = (DidMountCallbackArguments) => void;
 
     export interface JWPlayerProps extends JWPlayerConfig {
         didMountCallback?: DidMountCallback;
