@@ -30,11 +30,14 @@ class JWPlayer extends React.Component {
     this.id = props.id || generateUniqueId();
     this.onHandler = null;
     this.library = props.library;
-    this.async = props.async;
+    this.options = {
+      async: props.async || false,
+      defer: props.defer || false
+    };
   }
 
   async componentDidMount() {
-    await loadPlayer(this.library, this.async);
+    await loadPlayer(this.library, this.options);
     this.player = this.createPlayer();
     this.createEventListeners();
 
