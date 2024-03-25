@@ -1,6 +1,5 @@
 declare module '@jwplayer/jwplayer-react' {
-    import React from 'react';
-    import jwplayer from './jwplayer';
+    import type { ComponentType, HTMLProps } from 'react';
 
     /**
      * Example: {"2500":"High","1000":"Medium"}
@@ -99,7 +98,7 @@ declare module '@jwplayer/jwplayer-react' {
         config?: JWPlayerConfig;
     }
 
-    const JWPlayerComponent = React.Component<JWPlayerProps & React.HTMLProps<'video'>>;
+    const JWPlayerComponent: ComponentType<JWPlayerProps & HTMLProps<'video'>>;
 
     export default JWPlayerComponent;
 }
