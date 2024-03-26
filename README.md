@@ -74,7 +74,9 @@ const playlist = [{
 ...
 ```
 
-## Required Props
+## Props
+
+### Required Props
 These props are required to instantient an instance of JW Player:
 
 * `library`
@@ -95,7 +97,7 @@ If you are not using a cloud hosted player you will need to provide a license ke
   * Example: `{ key: "your-key-here" }`
 
 
-## Optional Props
+### Optional Props
 **All JW Player config options** can be used individually as props to configure a `jwplayer-react` player, i.e.,  `advertising`, `analytics`, `playlist`, `related`, `width`, and `height`. See the full list [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference). In addition, you may use the following props:
 
 * `on<Event>`, `once<Event>`
@@ -117,7 +119,7 @@ If you are not using a cloud hosted player you will need to provide a license ke
   * Type: `({ player: PlayerAPI, id: string }) => void`
   * Example: See [advanced implementation example](#advanced-implementation-examples)
 
-## API Functionality
+### API Functionality
 For advanced usage,`jwplayer-react` creates an instance of the player API when mounted, and sets it to `this.player`, exposing all api functionality listed [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
 
 
