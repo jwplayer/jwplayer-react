@@ -13,6 +13,11 @@
     "url": "https://github.com/jwplayer/jwplayer-react/issues"
   },
   "main": "./lib/jwplayer-react.js",
+  "types": "types/jwplayer-react.d.ts",
+  "files": [
+    "lib",
+    "types"
+  ],
   "scripts": {
     "build": "webpack && npm run badges:build:passing || npm run badges:build:failing",
     "ci": "npm ci; npm run build; npm run test; npm run lint; npm run badges:license",
@@ -34,6 +39,7 @@
     "@babel/preset-env": "7.16.11",
     "@babel/preset-react": "7.16.7",
     "@testing-library/react": "12.1.4",
+    "@types/jwplayer": "^8.28.4",
     "@typescript-eslint/eslint-plugin": "5.59.6",
     "@typescript-eslint/parser": "5.59.6",
     "@wojtekmaj/enzyme-adapter-react-17": "0.6.6",
