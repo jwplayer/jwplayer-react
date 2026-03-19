@@ -29,32 +29,29 @@
     "react": ">=17.0.2"
   },
   "devDependencies": {
-    "@babel/cli": "7.17.3",
-    "@babel/core": "7.17.5",
-    "@babel/preset-env": "7.16.11",
-    "@babel/preset-react": "7.16.7",
-    "@testing-library/react": "12.1.4",
-    "@typescript-eslint/eslint-plugin": "5.59.6",
-    "@typescript-eslint/parser": "5.59.6",
-    "@wojtekmaj/enzyme-adapter-react-17": "0.6.6",
-    "babel-jest": "27.5.1",
-    "babel-loader": "8.2.3",
-    "badge-maker": "3.3.1",
-    "enzyme": "3.11.0",
-    "eslint": "8.11.0",
-    "eslint-config-airbnb": "19.0.4",
-    "eslint-plugin-import": "2.25.4",
-    "eslint-plugin-jsx-a11y": "6.5.1",
-    "eslint-plugin-react": "7.29.4",
-    "jest": "27.5.1",
-    "jsdom": "19.0.0",
-    "mri": "1.2.0",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-test-renderer": "17.0.2",
-    "typescript": "5.0.4",
-    "webpack": "5.69.1",
-    "webpack-cli": "4.9.2"
+    "@babel/cli": "^7.26.0",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.0",
+    "@testing-library/react": "^16.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.6",
+    "babel-jest": "^29.7.0",
+    "babel-loader": "^9.2.0",
+    "badge-maker": "^3.3.1",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.0",
+    "eslint-plugin-react": "^7.37.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "mri": "^1.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "webpack": "^5.97.0",
+    "webpack-cli": "^5.1.0"
   },
   "keywords": [
     "jw",
@@ -64,13 +61,12 @@
   ],
   "jest": {
     "collectCoverageFrom": [
-      "src/**/*"
+      "src/**/*",
+      "!src/**/*.d.ts"
     ],
     "coverageReporters": [
       "json-summary"
     ]
   },
-  "dependencies": {
-    "@jwplayer/jwplayer-react": "^1.1.1"
-  }
+  "dependencies": {}
 }
