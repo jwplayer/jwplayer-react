@@ -4,6 +4,7 @@
 
 `<JWPlayer>` is a React Component that creates an instance of JW Player's web player. It allows for the use of any player configuration options and/or event hooks that can be used on the standard player (as props), and provides access to player's API directly via a `componentDidMount` callback.
 
+**Supports React 17, 18, and 19.**
 
 ## Contents
 
@@ -14,6 +15,7 @@
   * [Optional Props](#optional-props)
   * [API Functionality](#api-functionality)
 * [Advanced Implementation Examples](#advanced-implementation-examples)
+* [Development](#development)
 * [Contributing](#contributing)
 
 ## Installation
@@ -75,7 +77,7 @@ const playlist = [{
 ```
 
 ## Required Props
-These props are required to instantient an instance of JW Player:
+These props are required to instantiate an instance of JW Player:
 
 * `library`
   * Must be a url to a jwplayer web player library. Required if jwplayer library not already instantiated on page (ie. if window.jwplayer is undefined).
@@ -300,6 +302,28 @@ class PlayerContainer extends React.Component {
   }
 }
 export default PlayerContainer;
+```
+
+## Development
+
+Requires **Node.js 18+**.
+
+```shell
+# Install dependencies
+npm install
+
+# Build the library
+npm run build
+
+# Run tests
+npm test
+
+# Lint
+npm run lint
+
+# Build and open the demo page
+npm run demo
+# Then serve the project root (e.g. npx http-server) and open demo.html
 ```
 
 ## Contributing
