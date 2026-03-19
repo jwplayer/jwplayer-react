@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jwplayer-react — React 19 Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #f7523f;
+      --accent-glow: rgba(247, 82, 63, 0.25);
+      --green: #3fb950;
+      --code-bg: #1c2129;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 2rem 2rem 0;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header .badge-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    header .badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    header .badge.react { color: #61dafb; border-color: #61dafb44; }
+    header .badge.version { color: var(--green); border-color: #3fb95044; }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 span { color: var(--accent); }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .player-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .player-card .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-card .card-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .player-card .card-header .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: var(--accent-glow);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .player-wrapper {
+      padding: 1.25rem;
+    }
+
+    .event-log-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .event-log-section .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .event-log-section .card-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .event-log-section .card-header button {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .event-log-section .card-header button:hover {
+      border-color: var(--text-muted);
+    }
+
+    .event-log {
+      padding: 1rem 1.25rem;
+      max-height: 240px;
+      overflow-y: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    .event-log::-webkit-scrollbar { width: 6px; }
+    .event-log::-webkit-scrollbar-track { background: transparent; }
+    .event-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .event-entry {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .event-entry .timestamp { color: #484f58; min-width: 70px; }
+    .event-entry .event-name { color: #61dafb; }
+    .event-entry.highlight .event-name { color: var(--accent); }
+
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .code-block .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-block .card-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .code-block pre {
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    .code-block pre .kw { color: #ff7b72; }
+    .code-block pre .str { color: #a5d6ff; }
+    .code-block pre .fn { color: #d2a8ff; }
+    .code-block pre .comp { color: #ffa657; }
+    .code-block pre .prop { color: #79c0ff; }
+    .code-block pre .cmt { color: #484f58; }
+
+    .empty-log {
+      color: #484f58;
+      font-style: italic;
+    }
+
+    footer {
+      max-width: 960px;
+      margin: 3rem auto;
+      padding: 0 2rem 2rem;
+      text-align: center;
+      color: #484f58;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge-row">
+    <span class="badge react">React 19</span>
+    <span class="badge version">jwplayer-react v1.1.3</span>
+  </div>
+  <h1><span>&lt;</span>JWPlayer<span> /&gt;</span></h1>
+  <p>Live demo of the React wrapper component with event logging.</p>
+</header>
+
+<main id="app"></main>
+
+<footer>jwplayer-react &mdash; React 19 compatible</footer>
+
+<script src="https://esm.sh/react@19?bundle&dev" type="module"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19?dev",
+    "react-dom/client": "https://esm.sh/react-dom@19/client?dev",
+    "react/jsx-runtime": "https://esm.sh/react@19/jsx-runtime?dev"
+  }
+}
+</script>
+<script type="module">
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { createRoot } from 'react-dom/client';
+
+const LIBRARY = 'https://cdn.jwplayer.com/libraries/ZMmVnLUo.js';
+const PLAYLIST = 'https://cdn.jwplayer.com/v2/media/1g8jjku3';
+
+const HIGHLIGHT_EVENTS = new Set(['play', 'pause', 'complete', 'error', 'ready', 'setupError']);
+
+function App() {
+  const [events, setEvents] = useState([]);
+  const [playerReady, setPlayerReady] = useState(false);
+  const logRef = useRef(null);
+
+  const addEvent = useCallback((name, detail) => {
+    setEvents(prev => {
+      const entry = {
+        time: new Date().toLocaleTimeString('en-US', { hour12: false }),
+        name,
+        detail: detail ? JSON.stringify(detail).slice(0, 80) : '',
+      };
+      const next = [entry, ...prev];
+      return next.length > 200 ? next.slice(0, 200) : next;
+    });
+  }, []);
+
+  const clearLog = useCallback(() => setEvents([]), []);
+
+  const handleMount = useCallback(({ player, id }) => {
+    setPlayerReady(true);
+    addEvent('didMountCallback', { id });
+  }, [addEvent]);
+
+  const handleUnmount = useCallback(({ player, id }) => {
+    addEvent('willUnmountCallback', { id });
+  }, [addEvent]);
+
+  return React.createElement('div', null,
+    React.createElement('div', { className: 'player-card' },
+      React.createElement('div', { className: 'card-header' },
+        React.createElement('h2', null, 'Player'),
+        React.createElement('span', { className: 'tag' }, playerReady ? 'READY' : 'LOADING')
+      ),
+      React.createElement('div', { className: 'player-wrapper' },
+        React.createElement(JWPlayerComponent, {
+          library: LIBRARY,
+          playlist: PLAYLIST,
+          width: '100%',
+          aspectratio: '16:9',
+          didMountCallback: handleMount,
+          willUnmountCallback: handleUnmount,
+          onAll: (name, detail) => addEvent(name, detail),
+        })
+      )
+    ),
+
+    React.createElement('div', { className: 'event-log-section' },
+      React.createElement('div', { className: 'card-header' },
+        React.createElement('h2', null, 'Event Log'),
+        React.createElement('button', { onClick: clearLog }, 'CLEAR')
+      ),
+      React.createElement('div', { className: 'event-log', ref: logRef },
+        events.length === 0
+          ? React.createElement('div', { className: 'empty-log' }, 'Waiting for events...')
+          : events.map((e, i) =>
+              React.createElement('div', {
+                key: i,
+                className: 'event-entry' + (HIGHLIGHT_EVENTS.has(e.name) ? ' highlight' : '')
+              },
+                React.createElement('span', { className: 'timestamp' }, e.time),
+                React.createElement('span', { className: 'event-name' }, e.name),
+              )
+            )
+      )
+    ),
+
+    React.createElement('div', { className: 'code-block' },
+      React.createElement('div', { className: 'card-header' },
+        React.createElement('h2', null, 'Usage')
+      ),
+      React.createElement('pre', null,
+        React.createElement('code', { dangerouslySetInnerHTML: { __html:
+          `<span class="kw">import</span> <span class="comp">JWPlayer</span> <span class="kw">from</span> <span class="str">'@jwplayer/jwplayer-react'</span>;\n\n` +
+          `<span class="kw">function</span> <span class="fn">VideoPage</span>() {\n` +
+          `  <span class="kw">return</span> (\n` +
+          `    <span class="cmt">&lt;</span><span class="comp">JWPlayer</span>\n` +
+          `      <span class="prop">library</span>=<span class="str">"https://cdn.jwplayer.com/libraries/YOUR_ID.js"</span>\n` +
+          `      <span class="prop">playlist</span>=<span class="str">"https://cdn.jwplayer.com/v2/media/MEDIA_ID"</span>\n` +
+          `      <span class="prop">width</span>=<span class="str">"100%"</span>\n` +
+          `      <span class="prop">onReady</span>={<span class="fn">handleReady</span>}\n` +
+          `      <span class="prop">onPlay</span>={<span class="fn">handlePlay</span>}\n` +
+          `      <span class="prop">didMountCallback</span>={<span class="fn">handleMount</span>}\n` +
+          `    <span class="cmt">/&gt;</span>\n` +
+          `  );\n` +
+          `}`
+        }})
+      )
+    )
+  );
+}
+
+// Inline the component logic for the demo (mirrors src/jwplayer.jsx)
+const CONFIG_PROPS = new Set([
+  'advertising','aspectratio','autostart','captions','controls','description',
+  'displaydescription','displaytitle','file','floating','height','image',
+  'mute','playlist','playlistIndex','repeat','stretching','title','width',
+]);
+
+let idIndex = -1;
+function generateUniqueId() { return `jwplayer-${++idIndex}`; }
+
+function loadPlayerScript(url) {
+  if (window.jwplayer) return Promise.resolve();
+  if (!url) throw new Error('jwplayer-react requires a library prop');
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.onload = res;
+    s.onerror = rej;
+    s.src = url;
+    document.body.append(s);
+  });
+}
+
+class JWPlayerComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.ref = React.createRef();
+    this.player = null;
+    this.id = props.id || generateUniqueId();
+    this.onHandler = null;
+    this.state = { error: null };
+  }
+
+  async componentDidMount() {
+    try {
+      await loadPlayerScript(this.props.library);
+      const config = {};
+      Object.keys(this.props).forEach(k => { if (CONFIG_PROPS.has(k)) config[k] = this.props[k]; });
+      this.player = window.jwplayer(this.ref.current.id).setup({ ...config, isReactComponent: true });
+
+      const onHandler = (name, detail) => {
+        Object.keys(this.props).forEach(prop => {
+          if (prop === 'onAll' && typeof this.props[prop] === 'function') {
+            this.props[prop](name, detail);
+          }
+          const match = prop.match(/^on(.+)/);
+          if (match && match[1].toLowerCase() === name && typeof this.props[prop] === 'function') {
+            this.props[prop](detail);
+          }
+        });
+      };
+      this.player.on('all', onHandler);
+
+      if (this.props.didMountCallback) {
+        this.props.didMountCallback({ player: this.player, id: this.id });
+      }
+    } catch (err) {
+      this.setState({ error: err.message || 'Failed to load player' });
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.willUnmountCallback) {
+      this.props.willUnmountCallback({ player: this.player, id: this.id });
+    }
+    if (this.player) {
+      this.player.off();
+      this.player.remove();
+      this.player = null;
+    }
+  }
+
+  render() {
+    if (this.state.error) {
+      return React.createElement('div', {
+        style: {
+          background: '#1c2129', border: '1px dashed #30363d', borderRadius: 8,
+          padding: '3rem 2rem', textAlign: 'center', color: '#8b949e',
+        }
+      },
+        React.createElement('div', { style: { fontSize: '2rem', marginBottom: '0.75rem' } }, '\u25B6'),
+        React.createElement('div', { style: { fontWeight: 500, color: '#e6edf3', marginBottom: '0.5rem' } },
+          'JW Player library could not be loaded'),
+        React.createElement('div', { style: { fontSize: '0.85rem', lineHeight: 1.6 } },
+          'Replace the ', React.createElement('code', { style: { color: '#f7523f' } }, 'library'),
+          ' prop with your own JW Player CDN URL.'),
+        React.createElement('div', {
+          style: { fontSize: '0.75rem', marginTop: '1rem', fontFamily: "'Space Mono', monospace", color: '#484f58' }
+        }, this.state.error),
+      );
+    }
+    return React.createElement('div', { id: this.id, ref: this.ref });
+  }
+}
+
+createRoot(document.getElementById('app')).render(React.createElement(App));
+</script>
+</body>
+</html>
