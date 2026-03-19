@@ -16,6 +16,7 @@
   "scripts": {
     "build": "webpack && npm run badges:build:passing || npm run badges:build:failing",
     "ci": "npm ci; npm run build; npm run test; npm run lint; npm run badges:license",
+    "demo": "webpack --config webpack.demo.js",
     "lint": "eslint ./src/**/* --fix",
     "test": "jest --coverage && npm run badges:coverage && npm run badges:test:passing || npm run badges:test:failing",
     "badges:build:passing": "badge build passing :brightgreen > ./badges/build.svg",
