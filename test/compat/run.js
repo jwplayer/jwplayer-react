@@ -12,11 +12,13 @@ const run = (cmd) => execSync(cmd, { cwd: root, stdio: 'inherit' });
 
 // --legacy-peer-deps: devDependencies (@testing-library/react) declare react
 // 18+ peers, which would otherwise block installing react 17.
+// --ignore-scripts: skip the `prepare` rebuild on each swap; react is external
+// to the bundle, so the built lib is identical across react majors.
 const versions = ['17', '18', '19'];
 
 try {
     versions.forEach((version) => {
-        run(`npm install --no-save --no-audit --no-fund --legacy-peer-deps react@${version} react-dom@${version}`);
+        run(`npm install --no-save --no-audit --no-fund --legacy-peer-deps --ignore-scripts react@${version} react-dom@${version}`);
         run('node ./test/compat/smoke.js');
     });
 } finally {
