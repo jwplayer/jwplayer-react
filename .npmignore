@@ -1,8 +1,11 @@
 src
 demo
+demo.html
+webpack.demo.js
 .babelrc
 .eslintrc
 webpack.config.js
 coverage
 test
+badges
 package-lock.json

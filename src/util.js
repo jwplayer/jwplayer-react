@@ -8,21 +8,47 @@ export function generateUniqueId() {
 }
 
 export function createPlayerLoadPromise(url) {
-  return new Promise((res, rej) => {
-    const script = document.createElement('script');
+  const script = document.createElement('script');
+  const promise = new Promise((res, rej) => {
     script.onload = res;
     script.onerror = rej;
-    script.src = url;
-
-    document.body.append(script);
   });
+  script.src = url;
+  document.body.append(script);
+
+  return { script, promise };
 }
+
+// Reuse an in-flight library load (keyed by URL) so StrictMode remounts or
+// multiple players sharing a library don't inject duplicate script tags. An
+// entry is ignored once its script leaves the DOM, so a removed or failed load
+// can be retried.
+const loadPromises = new Map();
 
 export function loadPlayer(url) {
   if (!window.jwplayer && !url) throw new Error('jwplayer-react requires either a library prop, or a library script');
   if (window.jwplayer) return Promise.resolve();
 
-  return createPlayerLoadPromise(url);
+  const pending = loadPromises.get(url);
+  if (pending && pending.script.isConnected) {
+    return pending.promise;
+  }
+
+  const { script, promise } = createPlayerLoadPromise(url);
+  const tracked = promise.catch((error) => {
+    // Drop the cached rejection and the dead script so a later mount retries
+    // with a fresh element instead of leaving an orphaned tag in the DOM. Only
+    // evict our own entry, never a newer retry that already replaced it.
+    const current = loadPromises.get(url);
+    if (current && current.script === script) {
+      loadPromises.delete(url);
+    }
+    script.remove();
+    throw error;
+  });
+  loadPromises.set(url, { script, promise: tracked });
+
+  return tracked;
 }
 
 export function generateConfig(props) {

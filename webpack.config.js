@@ -8,6 +8,10 @@ module.exports = {
         filename: 'jwplayer-react.js',
         libraryTarget: 'commonjs2'
     },
+    externals: {
+        'react': 'commonjs2 react',
+        'react/jsx-runtime': 'commonjs2 react/jsx-runtime',
+    },
     module: {
         rules: [
             {

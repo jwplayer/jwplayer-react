@@ -1,1 +1,4 @@
 node_modules
+coverage
+demo/bundle.js
+lib

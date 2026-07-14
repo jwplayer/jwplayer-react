@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jwplayer-react — React 19 Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #f7523f;
+      --accent-glow: rgba(247, 82, 63, 0.25);
+      --green: #3fb950;
+      --code-bg: #1c2129;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 2rem 2rem 0;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header .badge-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    header .badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    header .badge.react { color: #61dafb; border-color: #61dafb44; }
+    header .badge.version { color: var(--green); border-color: #3fb95044; }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 span { color: var(--accent); }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .player-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .player-card .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .player-card .card-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .player-card .card-header .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: var(--accent-glow);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .player-wrapper {
+      padding: 1.25rem;
+    }
+
+    .event-log-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .event-log-section .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .event-log-section .card-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .event-log-section .card-header button {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .event-log-section .card-header button:hover {
+      border-color: var(--text-muted);
+    }
+
+    .event-log {
+      padding: 1rem 1.25rem;
+      max-height: 240px;
+      overflow-y: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    .event-log::-webkit-scrollbar { width: 6px; }
+    .event-log::-webkit-scrollbar-track { background: transparent; }
+    .event-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .event-entry {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .event-entry .timestamp { color: #484f58; min-width: 70px; }
+    .event-entry .event-name { color: #61dafb; }
+    .event-entry.highlight .event-name { color: var(--accent); }
+
+    .code-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .code-block .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-block .card-header h2 {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .code-block pre {
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    .code-block pre .kw { color: #ff7b72; }
+    .code-block pre .str { color: #a5d6ff; }
+    .code-block pre .fn { color: #d2a8ff; }
+    .code-block pre .comp { color: #ffa657; }
+    .code-block pre .prop { color: #79c0ff; }
+    .code-block pre .cmt { color: #484f58; }
+
+    .empty-log {
+      color: #484f58;
+      font-style: italic;
+    }
+
+    footer {
+      max-width: 960px;
+      margin: 3rem auto;
+      padding: 0 2rem 2rem;
+      text-align: center;
+      color: #484f58;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge-row">
+    <span class="badge react">React 19</span>
+    <span class="badge version">jwplayer-react</span>
+  </div>
+  <h1><span>&lt;</span>JWPlayer<span> /&gt;</span></h1>
+  <p>Live demo of the React wrapper component with event logging.</p>
+</header>
+
+<main id="app"></main>
+
+<footer>jwplayer-react &mdash; React 19 compatible</footer>
+
+<script src="demo/bundle.js"></script>
+</body>
+</html>

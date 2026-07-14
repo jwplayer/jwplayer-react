@@ -22,7 +22,7 @@ function createOnEventHandler(props) {
 class JWPlayer extends React.Component {
   constructor(props) {
     super(props);
-    this.ref = props.ref || React.createRef();
+    this.ref = React.createRef();
     this.config = generateConfig(props);
     this.player = null;
     this.didMountCallback = props.didMountCallback;
@@ -33,7 +33,24 @@ class JWPlayer extends React.Component {
   }
 
   async componentDidMount() {
-    await loadPlayer(this.library);
+    try {
+      await loadPlayer(this.library);
+    } catch (error) {
+      // A failed library load must not surface as an unhandled rejection in the
+      // consumer's app; log it and leave the player uninitialized.
+      // eslint-disable-next-line no-console
+      console.error('jwplayer-react: failed to load the player library', error);
+      return;
+    }
+
+    // The library loads asynchronously: bail if the component unmounted in the
+    // meantime (ref detached), or if an overlapping mount already created the
+    // player (StrictMode's dev remount can start a second load before the first
+    // resolves). A completed mount/unmount/mount cycle still recreates the player.
+    if (this.player || !this.ref.current) {
+      return;
+    }
+
     this.player = this.createPlayer();
     this.createEventListeners();
 

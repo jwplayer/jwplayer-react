@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,25 +13,27 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [18.x, 20.x, 22.x]
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Build
+    - name: Install & Test
       run: |
         npm install
         npm run ci
 
+    - name: React 17/18/19 compat smoke test
+      run: npm run test:compat
+
     - name: Commit Badges
-      if: ${{ matrix.node-version == '14.x' }}
-      uses: stefanzweifel/git-auto-commit-action@v4
+      if: ${{ github.event_name == 'push' && matrix.node-version == '20.x' }}
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        push_options: --force
-        token: ${{ secrets.PAT }}
+        file_pattern: badges/*.svg
         commit_message: Updated Badges
