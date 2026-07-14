@@ -123,6 +123,20 @@ export interface JWPlayerProps extends JWPlayerConfig {
     [eventProp: `on${string}`]: EventCallback;
 }
 
-declare const JWPlayer: React.ComponentClass<JWPlayerProps>;
+/**
+ * The mounted JWPlayer instance. A ref to the component resolves to this,
+ * exposing the player API (`ref.current.player`) once `didMountCallback` has
+ * fired, per the "API Functionality" section of the README.
+ */
+export interface JWPlayerInstance extends React.Component<JWPlayerProps> {
+    /** The JW Player API instance; null until mounted or after unmount. */
+    player: JWPlayerApi | null;
+    /** The DOM id of the player container. */
+    id: string;
+}
+
+declare const JWPlayer: React.ComponentClass<JWPlayerProps> & {
+    new (props: JWPlayerProps): JWPlayerInstance;
+};
 
 export default JWPlayer;

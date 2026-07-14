@@ -6,6 +6,7 @@
  */
 import * as React from 'react';
 import JWPlayer, {
+    JWPlayerInstance,
     JWPlayerProps,
     MountCallbackArguments,
     UnmountCallbackArguments,
@@ -41,3 +42,16 @@ export const withInlineProps = (
         didMountCallback={({ player }) => { void player; }}
     />
 );
+
+// A ref resolves to the mounted instance, exposing the player API directly.
+const playerRef = React.createRef<JWPlayerInstance>();
+
+export const withRef = <JWPlayer ref={playerRef} {...props} />;
+
+export function usePlayerApi(): void {
+    const { current } = playerRef;
+    if (current && current.player) {
+        current.player.on('play', () => {});
+    }
+    void current?.id;
+}
