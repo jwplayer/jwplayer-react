@@ -2,7 +2,7 @@
   "name": "@jwplayer/jwplayer-react",
   "version": "2.0.0",
   "description": "A react component that creates an instance of JW Player",
-  "license": "MIT",
+  "license": "ISC",
   "author": "Zachary Haigh",
   "homepage": "https://github.com/jwplayer/jwplayer-react#readme",
   "repository": {
