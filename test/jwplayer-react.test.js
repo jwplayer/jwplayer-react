@@ -20,6 +20,7 @@ beforeEach(() => {
 afterEach(() => {
     window.jwplayer = null;
     document.querySelectorAll('script').forEach((script) => script.remove());
+    jest.restoreAllMocks();
 });
 
 const createMountedComponent = async (props = {}) => {
@@ -349,13 +350,11 @@ describe('methods', () => {
             expect(ref.current.player).toBe(null);
             expect(errorSpy).toHaveBeenCalled();
             expect(document.body.contains(script)).toBe(false);
-
-            errorSpy.mockRestore();
         });
 
         it('appends a fresh script on retry after a failed load', async () => {
             window.jwplayer = null;
-            const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            jest.spyOn(console, 'error').mockImplementation(() => {});
 
             await act(async () => {
                 render(<JWPlayer library={library} playlist={playlist} />);
@@ -372,8 +371,26 @@ describe('methods', () => {
 
             expect(scripts.length).toBe(1);
             expect(scripts[0]).not.toBe(failedScript);
+        });
 
-            errorSpy.mockRestore();
+        it('does not evict a newer retry when a stale load fails late', async () => {
+            window.jwplayer = null;
+            // First load caches script A, then A is detached before it settles.
+            const first = loadPlayer(library);
+            const [scriptA] = scriptsFor(library);
+            scriptA.remove();
+
+            // A retry sees the detached entry and caches a fresh script B.
+            const second = loadPlayer(library);
+            const [scriptB] = scriptsFor(library);
+
+            // A's late failure must not evict B's live cache entry.
+            scriptA.onerror(new Error('stale failure'));
+            await expect(first).rejects.toThrow('stale failure');
+
+            // B still resolves, proving its entry survived.
+            scriptB.onload();
+            await expect(second).resolves.toBeUndefined();
         });
     });
 });
