@@ -22,10 +22,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Build
+    - name: Install & Test
       run: |
         npm install
         npm run ci
+
+    - name: React 17/18 compat smoke test
+      run: npm run test:compat
 
     - name: Commit Badges
       if: ${{ matrix.node-version == '20.x' }}

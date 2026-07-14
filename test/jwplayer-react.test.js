@@ -278,5 +278,38 @@ describe('methods', () => {
             const shouldUpdate = instance.shouldComponentUpdate({});
             expect(shouldUpdate).toBe(false);
         });
+
+        it('does not create a player when unmounted before the library loads', async () => {
+            window.jwplayer = null;
+            const ref = React.createRef();
+            const { unmount } = render(<JWPlayer ref={ref} library={library} playlist={playlist} />);
+            const instance = ref.current;
+            const script = Array.from(document.getElementsByTagName('script')).pop();
+
+            unmount();
+            window.jwplayer = mockLibrary;
+
+            await instance.componentDidMount();
+            expect(instance.player).toBe(null);
+            expect(players[instance.id]).toBeUndefined();
+
+            await act(async () => {
+                script.onload();
+            });
+            expect(instance.player).toBe(null);
+        });
+
+        it('creates only one player when StrictMode remounts', async () => {
+            const ref = React.createRef();
+            await act(async () => {
+                render(
+                    <React.StrictMode>
+                        <JWPlayer ref={ref} library={library} playlist={playlist} />
+                    </React.StrictMode>
+                );
+            });
+            const { id } = ref.current;
+            expect(window.jwplayer(id).setup.mock.calls.length).toBe(1);
+        });
     });
 });

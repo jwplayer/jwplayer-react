@@ -17,11 +17,12 @@
   },
   "main": "./lib/jwplayer-react.js",
   "scripts": {
-    "build": "webpack && npm run badges:build:passing || npm run badges:build:failing",
-    "ci": "npm ci; npm run build; npm run test; npm run lint; npm run badges:license",
+    "build": "webpack && npm run badges:build:passing || (npm run badges:build:failing && exit 1)",
+    "ci": "npm-run-all -p build test lint badges:license",
     "demo": "webpack --config webpack.demo.js",
     "lint": "eslint ./src/**/* --fix",
-    "test": "jest --coverage && npm run badges:coverage && npm run badges:test:passing || npm run badges:test:failing",
+    "test": "jest --coverage && npm run badges:coverage && npm run badges:test:passing || (npm run badges:test:failing && exit 1)",
+    "test:compat": "node ./test/compat/run.js",
     "badges:build:passing": "badge build passing :brightgreen > ./badges/build.svg",
     "badges:build:failing": "badge build failing :red > ./badges/build.svg",
     "badges:coverage": "node ./badges/util/coverage.js",
@@ -33,14 +34,13 @@
     "react": ">=17.0.2"
   },
   "devDependencies": {
-    "jwplayer-react-from-npm": "npm:@jwplayer/jwplayer-react@^2.0.0",
     "@babel/cli": "^7.26.0",
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.0",
     "@testing-library/react": "^16.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.6",
-    "@typescript-eslint/parser": "^5.59.6",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "babel-jest": "^29.7.0",
     "babel-loader": "^9.2.0",
     "badge-maker": "^3.3.1",
@@ -51,7 +51,9 @@
     "eslint-plugin-react": "^7.37.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^26.0.0",
     "mri": "^1.2.0",
+    "npm-run-all": "^4.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "^5.7.0",
@@ -72,6 +74,5 @@
     "coverageReporters": [
       "json-summary"
     ]
-  },
-  "dependencies": {}
+  }
 }
