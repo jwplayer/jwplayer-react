@@ -36,8 +36,10 @@ export function loadPlayer(url) {
 
   const { script, promise } = createPlayerLoadPromise(url);
   const tracked = promise.catch((error) => {
-    // Drop the cached rejection so a later mount can retry the failed load.
+    // Drop the cached rejection and the dead script so a later mount retries
+    // with a fresh element instead of leaving an orphaned tag in the DOM.
     loadPromises.delete(url);
+    script.remove();
     throw error;
   });
   loadPromises.set(url, { script, promise: tracked });
