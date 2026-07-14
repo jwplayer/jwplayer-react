@@ -318,5 +318,62 @@ describe('methods', () => {
             const { id } = ref.current;
             expect(window.jwplayer(id).setup.mock.calls.length).toBe(1);
         });
+
+        const scriptsFor = (url) => Array.from(document.getElementsByTagName('script'))
+            .filter((script) => script.src === url);
+
+        it('reuses a single script tag when two players share a library', async () => {
+            window.jwplayer = null;
+            await act(async () => {
+                render(<JWPlayer library={library} playlist={playlist} />);
+                render(<JWPlayer library={library} playlist={playlist} />);
+            });
+
+            expect(scriptsFor(library).length).toBe(1);
+        });
+
+        it('logs, creates no player, and removes the dead script when the load fails', async () => {
+            window.jwplayer = null;
+            const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const ref = React.createRef();
+
+            await act(async () => {
+                render(<JWPlayer ref={ref} library={library} playlist={playlist} />);
+            });
+            const [script] = scriptsFor(library);
+
+            await act(async () => {
+                script.onerror(new Error('network error'));
+            });
+
+            expect(ref.current.player).toBe(null);
+            expect(errorSpy).toHaveBeenCalled();
+            expect(document.body.contains(script)).toBe(false);
+
+            errorSpy.mockRestore();
+        });
+
+        it('appends a fresh script on retry after a failed load', async () => {
+            window.jwplayer = null;
+            const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            await act(async () => {
+                render(<JWPlayer library={library} playlist={playlist} />);
+            });
+            const [failedScript] = scriptsFor(library);
+            await act(async () => {
+                failedScript.onerror(new Error('network error'));
+            });
+
+            await act(async () => {
+                render(<JWPlayer library={library} playlist={playlist} />);
+            });
+            const scripts = scriptsFor(library);
+
+            expect(scripts.length).toBe(1);
+            expect(scripts[0]).not.toBe(failedScript);
+
+            errorSpy.mockRestore();
+        });
     });
 });
