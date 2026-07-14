@@ -318,7 +318,7 @@ npm run build
 # Run tests
 npm test
 
-# Verify the built lib against React 17 and 18 (requires npm run build first)
+# Verify the built lib against React 17, 18, and 19 (requires npm run build first)
 npm run test:compat
 
 # Lint

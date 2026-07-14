@@ -30,20 +30,27 @@ const JWPlayer = require('../../lib/jwplayer-react.js').default;
 
 const reactMajor = Number(React.version.split('.')[0]);
 
+function fail(message) {
+    console.error(`react ${React.version}: ${message}`);
+    process.exit(1);
+}
+
 function assert(condition, message) {
     if (!condition) {
-        console.error(`react ${React.version}: ${message}`);
-        process.exit(1);
+        fail(message);
     }
 }
 
 const container = document.getElementById('root');
 let mountArgs = null;
 let playEvents = 0;
+let onMounted = null;
+const mounted = new Promise((resolve) => { onMounted = resolve; });
+
 const element = React.createElement(JWPlayer, {
     playlist: 'https://example.com/playlist',
     onPlay: () => { playEvents += 1; },
-    didMountCallback: (args) => { mountArgs = args; },
+    didMountCallback: (args) => { mountArgs = args; onMounted(); },
 });
 
 let unmount;
@@ -58,7 +65,9 @@ if (reactMajor >= 18) {
     unmount = () => ReactDOM.unmountComponentAtNode(container);
 }
 
-setTimeout(() => {
+setTimeout(() => fail('timed out waiting for didMountCallback'), 15000);
+
+mounted.then(() => {
     assert(calls.setup.length === 1, 'expected exactly one player setup');
     assert(calls.setup[0].isReactComponent === true, 'setup config is missing isReactComponent');
     assert(mountArgs && mountArgs.player, 'didMountCallback was not invoked with a player');
@@ -71,7 +80,7 @@ setTimeout(() => {
     assert(calls.remove === 1, 'player.remove() was not called on unmount');
 
     console.log(`react ${React.version}: compat smoke test passed`);
-    // react-dom's scheduler holds an open MessageChannel that would otherwise
-    // keep the process alive indefinitely.
+    // Exit explicitly: react-dom's scheduler holds an open MessageChannel that
+    // would otherwise keep the process alive past the failure timeout above.
     process.exit(0);
-}, 50);
+});

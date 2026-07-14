@@ -1,5 +1,7 @@
 src
 demo
+demo.html
+webpack.demo.js
 .babelrc
 .eslintrc
 webpack.config.js

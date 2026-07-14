@@ -27,13 +27,12 @@ jobs:
         npm install
         npm run ci
 
-    - name: React 17/18 compat smoke test
+    - name: React 17/18/19 compat smoke test
       run: npm run test:compat
 
     - name: Commit Badges
-      if: ${{ matrix.node-version == '20.x' }}
+      if: ${{ github.event_name == 'push' && matrix.node-version == '20.x' }}
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        push_options: --force
-        token: ${{ secrets.PAT }}
+        file_pattern: badges/*.svg
         commit_message: Updated Badges

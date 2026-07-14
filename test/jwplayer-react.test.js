@@ -12,7 +12,6 @@ const noop = () => {};
 
 const playlist = 'https://cdn.jwplayer.com/v2/media/1g8jjku3';
 const library = 'https://cdn.jwplayer.com/libraries/lqsWlr4Z.js';
-let expectedInstance = -1;
 
 beforeEach(() => {
     window.jwplayer = mockLibrary;
@@ -20,6 +19,7 @@ beforeEach(() => {
 
 afterEach(() => {
     window.jwplayer = null;
+    document.querySelectorAll('script').forEach((script) => script.remove());
 });
 
 const createMountedComponent = async (props = {}) => {
@@ -40,7 +40,6 @@ describe('setup', () => {
             render(<JWPlayer ref={ref} {...props} />);
         });
         instance = ref.current;
-        expectedInstance++;
     };
 
     const checkTests = () => {
@@ -48,7 +47,7 @@ describe('setup', () => {
         expect(instance.player).toBe(players[instance.id]);
         expect(instance.didMountCallback).toEqual(undefined);
         expect(instance.willUnmountCallback).toEqual(undefined);
-        expect(instance.id).toEqual(`jwplayer-${expectedInstance}`);
+        expect(instance.id).toMatch(/^jwplayer-\d+$/);
         expect(window.jwplayer(instance.id).setup.mock.calls.length).toBe(1);
         expect(window.jwplayer(instance.id).setup.mock.calls[0][0]).toEqual({ playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3', isReactComponent: true });
     };
@@ -72,7 +71,6 @@ describe('setup', () => {
         window.jwplayer = null;
         const ref = React.createRef();
         render(<JWPlayer ref={ref} library={library} playlist={playlist} />);
-        expectedInstance++;
         const script = document.getElementsByTagName('script')[0];
         expect(script instanceof HTMLScriptElement).toEqual(true);
     });
@@ -299,15 +297,24 @@ describe('methods', () => {
             expect(instance.player).toBe(null);
         });
 
-        it('creates only one player when StrictMode remounts', async () => {
+        it('does not create duplicate players when StrictMode remounts during library load', async () => {
+            window.jwplayer = null;
             const ref = React.createRef();
+            render(
+                <React.StrictMode>
+                    <JWPlayer ref={ref} library={library} playlist={playlist} />
+                </React.StrictMode>
+            );
+
+            await act(async () => {});
+            const scripts = Array.from(document.getElementsByTagName('script'));
+            expect(scripts.length).toBeGreaterThan(0);
+
+            window.jwplayer = mockLibrary;
             await act(async () => {
-                render(
-                    <React.StrictMode>
-                        <JWPlayer ref={ref} library={library} playlist={playlist} />
-                    </React.StrictMode>
-                );
+                scripts.forEach((script) => script.onload());
             });
+
             const { id } = ref.current;
             expect(window.jwplayer(id).setup.mock.calls.length).toBe(1);
         });

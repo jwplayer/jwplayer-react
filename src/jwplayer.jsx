@@ -36,8 +36,9 @@ class JWPlayer extends React.Component {
     await loadPlayer(this.library);
 
     // The library loads asynchronously: bail if the component unmounted in the
-    // meantime (ref detached), or if an earlier mount already created the player
-    // (StrictMode runs mount -> unmount -> mount in development).
+    // meantime (ref detached), or if an overlapping mount already created the
+    // player (StrictMode's dev remount can start a second load before the first
+    // resolves). A completed mount/unmount/mount cycle still recreates the player.
     if (this.player || !this.ref.current) {
       return;
     }
