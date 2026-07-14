@@ -7,4 +7,5 @@ webpack.demo.js
 webpack.config.js
 coverage
 test
+badges
 package-lock.json

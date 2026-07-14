@@ -23,6 +23,7 @@
     "ci": "npm-run-all -p build test lint test:types badges:license",
     "demo": "webpack --config webpack.demo.js",
     "lint": "eslint ./src/**/* --fix",
+    "prepublishOnly": "npm run build",
     "test": "jest --coverage && npm run badges:coverage && npm run badges:test:passing || (npm run badges:test:failing && exit 1)",
     "test:compat": "node ./test/compat/run.js",
     "test:types": "tsc -p ./test/types",
@@ -34,7 +35,10 @@
     "badges:license": "badge license ISC :brightgreen > ./badges/license.svg"
   },
   "peerDependencies": {
-    "react": ">=17.0.2"
+    "react": "^17.0.2 || ^18.0.0 || ^19.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.0",
