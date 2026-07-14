@@ -13,6 +13,14 @@
           "files": ["./src/*.ts"],
           "parser": "@typescript-eslint/parser",
           "plugins": ["@typescript-eslint"]
+        },
+        {
+          "files": ["demo/**/*"],
+          "rules": {
+            "import/no-extraneous-dependencies": ["error", {
+              "devDependencies": true
+            }]
+          }
         }
-    ] 
+    ]
 }
