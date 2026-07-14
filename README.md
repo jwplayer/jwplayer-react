@@ -321,6 +321,9 @@ npm test
 # Verify the built lib against React 17, 18, and 19 (requires npm run build first)
 npm run test:compat
 
+# Typecheck the shipped TypeScript declarations
+npm run test:types
+
 # Lint
 npm run lint
 
