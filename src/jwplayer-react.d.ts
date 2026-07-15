@@ -4,8 +4,11 @@ import * as React from 'react';
  * Player setup options, passed through verbatim to `jwplayer().setup()`.
  * The player's config surface evolves independently of this package, so keys
  * are intentionally left open rather than enumerated here. See the official
- * configuration reference for the supported options and their shapes:
+ * references for the supported options and their shapes — top-level options:
  * https://docs.jwplayer.com/players/reference/setup-options
+ * and every nested config section (advertising, captions, casting, drm,
+ * floating, playlists, related, sharing, skin, ...):
+ * https://docs.jwplayer.com/players/reference/configuration-options-getting-started
  */
 export type JWPlayerConfig = Record<string, unknown>;
 
