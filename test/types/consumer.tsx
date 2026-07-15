@@ -6,6 +6,7 @@
  */
 import * as React from 'react';
 import JWPlayer, {
+    JWPlayerConfig,
     JWPlayerInstance,
     JWPlayerProps,
     MountCallbackArguments,
@@ -42,6 +43,62 @@ export const withInlineProps = (
         didMountCallback={({ player }) => { void player; }}
     />
 );
+
+// generateConfig() spreads `config` verbatim into setup(), so custom keys the
+// player config reference doesn't document must typecheck, including as an
+// inline literal (excess-property checking would otherwise reject them).
+export const withCustomConfigData = (
+    <JWPlayer
+        library="https://cdn.jwplayer.com/libraries/abcd1234.js"
+        playlist="https://cdn.jwplayer.com/v2/media/abcd1234"
+        config={{ _customAdServerData: { segment: 'sports' } }}
+    />
+);
+
+// All whitelisted player config options are usable as top-level props (per the
+// README), including ones with no dedicated declaration and custom ad keys.
+export const withTopLevelConfigProps = (
+    <JWPlayer
+        library="https://cdn.jwplayer.com/libraries/abcd1234.js"
+        playlist="https://cdn.jwplayer.com/v2/media/abcd1234"
+        floating={{ dismissible: true }}
+        advertising={{
+            client: 'googima',
+            schedule: [{ offset: 'pre', tag: 'https://example.com/vast.xml' }],
+            _customAdServerData: { segment: 'sports' },
+        }}
+    />
+);
+
+// Interface types get no implicit index signature, so `config` and
+// `advertising` need their `| object` arm to accept interface-typed values.
+interface AppPlayerConfig {
+    file: string;
+    autostart: boolean;
+}
+declare const appConfig: AppPlayerConfig;
+export const withInterfaceTypedConfig = (
+    <JWPlayer
+        library="https://cdn.jwplayer.com/libraries/abcd1234.js"
+        config={appConfig}
+        didMountCallback={({ player }) => { player.setup(appConfig); }}
+    />
+);
+
+// Declared props keep their strict types despite the open index signature.
+// @ts-expect-error library must be a string
+export const withBadLibrary = <JWPlayer library={123} />;
+// @ts-expect-error config must be an object
+export const withBadConfig = <JWPlayer config="nope" />;
+// @ts-expect-error advertising must be an object
+export const withBadAdvertising = <JWPlayer advertising="googima" />;
+// @ts-expect-error on<Event> props must be functions
+export const withBadEventProp = <JWPlayer onPlay="not-a-callback" />;
+
+export const customConfig: JWPlayerConfig = {
+    playlist: 'https://cdn.jwplayer.com/v2/media/abcd1234',
+    _customAdServerData: { segment: 'sports' },
+};
 
 // A ref resolves to the mounted instance, exposing the player API directly.
 const playerRef = React.createRef<JWPlayerInstance>();
