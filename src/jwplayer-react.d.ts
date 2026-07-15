@@ -39,7 +39,106 @@ export interface UnmountCallbackArguments {
     player: JWPlayerApi | null;
 }
 
-export interface JWPlayerProps extends JWPlayerConfig {
+/**
+ * The config options usable directly as props, mirroring the runtime
+ * whitelist in src/config-props.js (a unit test keeps the two in sync).
+ * The component silently drops top-level props outside that whitelist, so
+ * the props type stays closed to surface that at compile time — custom setup
+ * keys must ride in `config` instead.
+ *
+ * `key` is whitelisted at runtime but omitted here: React reserves the `key`
+ * prop and never forwards it, so a player license key only works via
+ * `config={{ key: ... }}`.
+ */
+type WhitelistedConfigKey =
+    | 'hlsjsProgressive'
+    | '__abSendDomainToFeeds'
+    | '_abZoomThumbnail'
+    | 'advertising'
+    | 'aboutlink'
+    | 'abouttext'
+    | 'aestoken'
+    | 'allowFullscreen'
+    | 'analytics'
+    | 'androidhls'
+    | 'aspectratio'
+    | 'autoPause'
+    | 'autostart'
+    | 'base'
+    | 'captions'
+    | 'cast'
+    | 'controls'
+    | 'defaultBandwidthEstimate'
+    | 'description'
+    | 'displaydescription'
+    | 'displayHeading'
+    | 'displayPlaybackLabel'
+    | 'displaytitle'
+    | 'drm'
+    | 'duration'
+    | 'enableDefaultCaptions'
+    | 'events'
+    | 'file'
+    | 'forceLocalizationDefaults'
+    | 'fwassetid'
+    | 'floating'
+    | 'ga'
+    | 'generateSEOMetadata'
+    | 'height'
+    | 'hlsjsConfig'
+    | 'hlsjsdefault'
+    | 'horizontalVolumeSlider'
+    | 'image'
+    | 'intl'
+    | 'listbar'
+    | 'liveSyncDuration'
+    | 'liveTimeout'
+    | 'localization'
+    | 'logo'
+    | 'mediaid'
+    | 'mute'
+    | 'nextUpDisplay'
+    | 'nextupoffset'
+    | 'pad'
+    | 'ph'
+    | 'pid'
+    | 'pipIcon'
+    | 'playbackRateControls'
+    | 'playbackRates'
+    | 'playlist'
+    | 'playlistIndex'
+    | 'plugins'
+    | 'preload'
+    | 'qualityLabel'
+    | 'qualityLabels'
+    | 'recommendations'
+    | 'related'
+    | 'renderCaptionsNatively'
+    | 'repeat'
+    | 'safarihlsjs'
+    | 'sdkplatform'
+    | 'selectedBitrate'
+    | 'setTimeEvents'
+    | 'skin'
+    | 'sharing'
+    | 'sources'
+    | 'stagevideo'
+    | 'streamtype'
+    | 'stretching'
+    | 'title'
+    | 'tracks'
+    | 'type'
+    | 'variations'
+    | 'volume'
+    | 'width'
+    | 'withCredentials'
+    | 'doNotTrack'
+    | 'doNotTrackCookies'
+    | 'images';
+
+export type JWPlayerConfigProps = Partial<Record<WhitelistedConfigKey, unknown>>;
+
+export interface JWPlayerProps extends JWPlayerConfigProps {
     didMountCallback?: (args: MountCallbackArguments) => void;
     willUnmountCallback?: (args: UnmountCallbackArguments) => void;
     id?: string;

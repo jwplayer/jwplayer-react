@@ -1,3 +1,5 @@
+// Mirrored by WhitelistedConfigKey in jwplayer-react.d.ts; a unit test keeps
+// the two in sync.
 module.exports = new Set([
   'hlsjsProgressive',
   '__abSendDomainToFeeds',
