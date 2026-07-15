@@ -91,10 +91,11 @@ describe('methods', () => {
     });
 
     describe('generateConfig', () => {
-        it('generates a setup config from props without assigning unsupported properties', async () => {
-            const { instance } = await createMountedComponent({ unsupportedProperty: 3, floating: {}, width: 500 });
+        it('forwards all non-component props into the setup config, including custom keys', async () => {
+            const { instance } = await createMountedComponent({ _customAdServerData: { segment: 'sports' }, floating: {}, width: 500 });
             const setupConfig = window.jwplayer(instance.id).setup.mock.calls[0][0];
             const expectedSetupConfig = {
+                _customAdServerData: { segment: 'sports' },
                 floating: {},
                 isReactComponent: true,
                 playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3',
@@ -103,11 +104,28 @@ describe('methods', () => {
             expect(setupConfig).toEqual(expectedSetupConfig);
         });
 
+        it('excludes component props and event handlers from the setup config', async () => {
+            const { instance } = await createMountedComponent({
+                didMountCallback: noop,
+                willUnmountCallback: noop,
+                onPlay: noop,
+                onceReady: noop,
+                width: 500
+            });
+            const setupConfig = window.jwplayer(instance.id).setup.mock.calls[0][0];
+            expect(setupConfig).toEqual({
+                isReactComponent: true,
+                playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3',
+                width: 500
+            });
+        });
+
         it('Props overwrite matching base config properties', async () => {
             const baseConfig = { width: 400, height: 300 };
-            const { instance } = await createMountedComponent({ config: baseConfig, unsupportedProperty: 3, floating: {}, width: 500 });
+            const { instance } = await createMountedComponent({ config: baseConfig, _customAdServerData: { segment: 'sports' }, floating: {}, width: 500 });
             const setupConfig = window.jwplayer(instance.id).setup.mock.calls[0][0];
             const expectedSetupConfig = {
+                _customAdServerData: { segment: 'sports' },
                 floating: {},
                 isReactComponent: true,
                 playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3',

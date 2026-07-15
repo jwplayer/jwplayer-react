@@ -55,8 +55,9 @@ export const withCustomConfigData = (
     />
 );
 
-// All whitelisted player config options are usable as top-level props (per the
-// README), including ones with no dedicated declaration and custom ad keys.
+// Any non-component prop is forwarded into setup(), so all player config
+// options — and custom keys like _customAdServerData — work as top-level
+// props with no dedicated declaration.
 export const withTopLevelConfigProps = (
     <JWPlayer
         library="https://cdn.jwplayer.com/libraries/abcd1234.js"
@@ -85,15 +86,15 @@ export const withInterfaceTypedConfig = (
     />
 );
 
-// The runtime silently drops top-level props outside the config-props.js
-// whitelist, so the props type rejects them — custom keys must ride in
-// `config` — and catches typo'd prop names.
-// @ts-expect-error non-whitelisted top-level props are rejected
-export const withCustomTopLevelProp = <JWPlayer _customAdServerData={{ segment: 'sports' }} />;
-// @ts-expect-error typo'd prop names are rejected
-export const withTypoProp = <JWPlayer playlst="https://cdn.jwplayer.com/v2/media/abcd1234" />;
+export const withCustomTopLevelProp = (
+    <JWPlayer
+        library="https://cdn.jwplayer.com/libraries/abcd1234.js"
+        playlist="https://cdn.jwplayer.com/v2/media/abcd1234"
+        _customAdServerData={{ segment: 'sports' }}
+    />
+);
 
-// Declared props keep their strict types.
+// Declared props keep their strict types despite the open index signature.
 // @ts-expect-error library must be a string
 export const withBadLibrary = <JWPlayer library={123} />;
 // @ts-expect-error config must be an object
