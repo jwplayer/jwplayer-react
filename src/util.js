@@ -1,4 +1,16 @@
-import configProps from './config-props';
+import { ON_REGEX } from './const';
+
+// Props that configure this component rather than the player. Everything else
+// is forwarded verbatim into setup(), so the player — not this wrapper —
+// decides which config keys are meaningful.
+const componentProps = new Set([
+  'children',
+  'config',
+  'didMountCallback',
+  'id',
+  'library',
+  'willUnmountCallback',
+]);
 
 let idIndex = -1;
 export function generateUniqueId() {
@@ -55,7 +67,10 @@ export function generateConfig(props) {
   const config = {};
 
   Object.keys(props).forEach((key) => {
-    if (configProps.has(key)) config[key] = props[key];
+    if (componentProps.has(key)) return;
+    // on* event handler props (once* also matches ON_REGEX) are not config
+    if (key.match(ON_REGEX)) return;
+    config[key] = props[key];
   });
 
   return { ...props.config, ...config, isReactComponent: true };

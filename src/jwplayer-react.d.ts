@@ -1,86 +1,16 @@
 import * as React from 'react';
 
 /**
- * Example: {"2500":"High","1000":"Medium"}
+ * Player setup options, passed through verbatim to `jwplayer().setup()`.
+ * The player's config surface evolves independently of this package, so keys
+ * are intentionally left open rather than enumerated here. See the official
+ * references for the supported options and their shapes — top-level options:
+ * https://docs.jwplayer.com/players/reference/setup-options
+ * and every nested config section (advertising, captions, casting, drm,
+ * floating, playlists, related, sharing, skin, ...):
+ * https://docs.jwplayer.com/players/reference/configuration-options-getting-started
  */
-type QualityLabels = Record<string, string>;
-
-type Stretching = 'uniform' | 'exactfit' | 'fill' | 'none';
-
-/**
- * Width in pixels or percentage
- */
-type Width = number | string;
-
-interface AppearanceConfig {
-    aspectratio?: string;
-    controls?: boolean;
-    displaydescription?: boolean;
-    displayHeading?: boolean;
-    displayPlaybackLabel?: boolean;
-    displaytitle?: boolean;
-    height?: number;
-    horizontalVolumeSlider?: boolean;
-    nextUpDisplay?: boolean;
-    qualityLabels?: QualityLabels;
-    renderCaptionsNatively?: boolean;
-    stretching?: Stretching;
-    width?: Width;
-}
-
-type AutoStart = 'viewable';
-
-/**
- * A positive value is an offset from the start of the video.
- * A negative value is an offset from the end of the video.
- * This property can be defined either as a number (-10) or a percentage as a string ("-2%")
- */
-type NextUpOffset = string | number;
-
-interface BehaviorConfig {
-    aboutlink?: string;
-    abouttext?: string;
-    allowFullscreen?: boolean;
-    autostart?: AutoStart;
-    defaultBandwidthEstimate?: number;
-    generateSEOMetadata?: boolean;
-    liveSyncDuration?: number;
-    mute?: boolean;
-    nextupoffset?: NextUpOffset;
-    pipIcon?: string;
-    playbackRateControls?: boolean;
-    playbackRates?: number[];
-    playlistIndex?: number;
-    repeat?: boolean;
-}
-
-type MediaType =
-    | 'aac' | 'f4a' | 'f4v' | 'hls' | 'm3u' | 'm4v' | 'mov' | 'mp3'
-    | 'mp4' | 'mpeg' | 'oga' | 'ogg' | 'ogv' | 'vorbis' | 'webm';
-
-interface MediaConfig {
-    file?: string;
-    description?: string;
-    image?: string;
-    mediaid?: string;
-    playlist?: string | object[];
-    title?: string;
-    type?: MediaType;
-}
-
-type Preload = 'metadata' | 'auto' | 'none';
-
-interface RenderAndLoadingConfig {
-    base?: string;
-    flashplayer?: string;
-    hlsjsdefault?: boolean;
-    liveTimeout?: number;
-    loadAndParseHlsMetadata?: boolean;
-    preload?: Preload;
-}
-
-export type JWPlayerConfig =
-    AppearanceConfig & BehaviorConfig & MediaConfig & RenderAndLoadingConfig;
+export type JWPlayerConfig = Record<string, unknown>;
 
 export type EventCallback = (...args: unknown[]) => void;
 
@@ -94,7 +24,7 @@ export interface JWPlayerApi {
     once(event: string, callback: EventCallback): JWPlayerApi;
     off(event?: string, callback?: EventCallback): JWPlayerApi;
     remove(): void;
-    setup(config: Record<string, unknown>): JWPlayerApi;
+    setup(config: JWPlayerConfig | object): JWPlayerApi;
     [member: string]: unknown;
 }
 
@@ -109,13 +39,33 @@ export interface UnmountCallbackArguments {
     player: JWPlayerApi | null;
 }
 
+/**
+ * Any prop that is not part of the component's own API (the declared props
+ * below and on<Event>/once<Event> handlers) is forwarded verbatim into
+ * `jwplayer().setup()`, so all player config options work as top-level props.
+ *
+ * Exception: React reserves the `key` prop and never forwards it, so a player
+ * license key only works via `config={{ key: ... }}`.
+ */
 export interface JWPlayerProps extends JWPlayerConfig {
     didMountCallback?: (args: MountCallbackArguments) => void;
     willUnmountCallback?: (args: UnmountCallbackArguments) => void;
     id?: string;
     /** Required unless a jwplayer library script is already loaded on the page */
     library?: string;
-    config?: JWPlayerConfig;
+    /**
+     * The `| object` arm accepts interface-typed configs, which lack the
+     * implicit index signature TypeScript requires for Record assignability.
+     */
+    config?: JWPlayerConfig | object;
+    /**
+     * Config merging is shallow, so a top-level advertising prop replaces the
+     * entire advertising block — both `config.advertising` and the player
+     * library/dashboard defaults. Include the full ad config here, not just
+     * the keys being changed. See the official reference for its shape:
+     * https://docs.jwplayer.com/players/reference/advertising-config-ref
+     */
+    advertising?: JWPlayerConfig | object;
     /**
      * on<Event> props subscribe to player events; onAll fires for every event.
      * once<Event> props subscribe to the first firing only.
