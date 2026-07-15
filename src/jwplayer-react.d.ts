@@ -3,9 +3,9 @@ import * as React from 'react';
 /**
  * Player setup options, passed through verbatim to `jwplayer().setup()`.
  * The player's config surface evolves independently of this package, so keys
- * are intentionally left open rather than enumerated here. See
- * https://docs.jwplayer.com/players/reference/player-configuration-reference
- * for the supported options.
+ * are intentionally left open rather than enumerated here. See the official
+ * configuration reference for the supported options and their shapes:
+ * https://docs.jwplayer.com/players/reference/setup-options
  */
 export type JWPlayerConfig = Record<string, unknown>;
 
@@ -51,7 +51,8 @@ export interface JWPlayerProps extends JWPlayerConfig {
      * Config merging is shallow, so a top-level advertising prop replaces the
      * entire advertising block — both `config.advertising` and the player
      * library/dashboard defaults. Include the full ad config here, not just
-     * the keys being changed.
+     * the keys being changed. See the official reference for its shape:
+     * https://docs.jwplayer.com/players/reference/advertising-config-ref
      */
     advertising?: JWPlayerConfig | object;
     /**
