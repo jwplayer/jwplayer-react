@@ -14,6 +14,8 @@
   * [Required Props](#required-props)
   * [Optional Props](#optional-props)
   * [API Functionality](#api-functionality)
+    * [With a ref](#with-a-ref)
+    * [With `didMountCallback`](#with-didmountcallback)
 * [Advanced Implementation Examples](#advanced-implementation-examples)
 * [Development](#development)
 * [Contributing](#contributing)
@@ -124,7 +126,70 @@ If you are not using a cloud hosted player you will need to provide a license ke
 ### API Functionality
 For advanced usage,`jwplayer-react` creates an instance of the player API when mounted, and sets it to `this.player`, exposing all api functionality listed [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
 
+There are two ways to reach that player instance.
 
+#### With a ref
+
+`JWPlayer` is a class component, so a ref resolves to the component instance. Read the player API from `ref.current.player`:
+
+```jsx
+import { useCallback, useRef } from 'react';
+import JWPlayer from '@jwplayer/jwplayer-react';
+
+function Player() {
+  const playerRef = useRef(null);
+
+  const mute = useCallback(() => {
+    playerRef.current?.player?.setMute(true);
+  }, []);
+
+  return (
+    <>
+      <JWPlayer
+        ref={playerRef}
+        library="https://cdn.jwplayer.com/libraries/abcd1234.js"
+        playlist="https://cdn.jwplayer.com/v2/playlists/abcd1234"
+      />
+      <button type="button" onClick={mute}>Mute</button>
+    </>
+  );
+}
+```
+
+`ref.current.player` is `null` in three cases:
+
+* Before the player is set up. The component loads the player library over the network, so setup finishes after mount. A parent's first `useEffect` may still see `null`.
+* When the library script fails to load. The failure is logged to the console and the player is never created, so `player` stays `null` for the component's whole life.
+* After the component unmounts.
+
+Guard every access with `?.`, as above. `on<Event>` and `once<Event>` handlers, and `didMountCallback`, only run after setup, so their player is always set. `willUnmountCallback` also fires when setup never happened, so its `player` argument can be `null`.
+
+#### With `didMountCallback`
+
+Use `didMountCallback` when you need the player as soon as it exists, for example to store it in state or a context:
+
+```jsx
+import { useState } from 'react';
+import JWPlayer from '@jwplayer/jwplayer-react';
+
+function Player() {
+  const [player, setPlayer] = useState(null);
+
+  return (
+    <>
+      <JWPlayer
+        library="https://cdn.jwplayer.com/libraries/abcd1234.js"
+        playlist="https://cdn.jwplayer.com/v2/playlists/abcd1234"
+        didMountCallback={({ player: api }) => setPlayer(api)}
+        willUnmountCallback={() => setPlayer(null)}
+      />
+      <button type="button" disabled={!player} onClick={() => player.pause()}>
+        Pause
+      </button>
+    </>
+  );
+}
+```
 
 ## Advanced Implementation Examples
 
