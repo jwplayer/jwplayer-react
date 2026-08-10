@@ -76,6 +76,29 @@ export function generateConfig(props) {
   return { ...props.config, ...config, isReactComponent: true };
 }
 
+// Structural comparison of player config values — strings, numbers, arrays and
+// plain objects. Not a general-purpose deep equal: functions, dates and class
+// instances compare by identity, which is all the config surface needs.
+export function deepEqual(a, b) {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+
+  return keys.every((key) => (
+    Object.prototype.hasOwnProperty.call(b, key) && deepEqual(a[key], b[key])
+  ));
+}
+
+// The content the player is asked to play. This is the only part of the setup
+// config the player can swap in place, via load().
+export function getContent(config) {
+  const { playlist, file } = config;
+  return { playlist, file };
+}
+
 export function getHandlerName(prop, regex) {
   const match = prop.match(regex) || ['', ''];
 

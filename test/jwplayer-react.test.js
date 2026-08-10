@@ -282,11 +282,14 @@ describe('methods', () => {
             expect(shouldUpdate).toBe(true);
         });
 
-        it('should not update component if on event props change', async () => {
+        // Event listeners used to be re-subscribed from shouldComponentUpdate,
+        // which then returned false. That dropped any config change landing in
+        // the same update, so the work moved to componentDidUpdate.
+        it('should update component if on event props change', async () => {
             const { instance } = await createMountedComponent();
             const nextProps = { onPlay: noop };
             const shouldUpdate = instance.shouldComponentUpdate(nextProps);
-            expect(shouldUpdate).toBe(false);
+            expect(shouldUpdate).toBe(true);
         });
 
         it('should not update component if player does not exist', async () => {
@@ -410,5 +413,116 @@ describe('methods', () => {
             scriptB.onload();
             await expect(second).resolves.toBeUndefined();
         });
+    });
+});
+
+// Content props must reach an already-created player.
+// See https://github.com/jwplayer/jwplayer-react/issues/20
+describe('content updates', () => {
+    const otherPlaylist = 'https://cdn.jwplayer.com/v2/media/abcd1234';
+
+    const renderPlayer = async (props) => {
+        const ref = React.createRef();
+        let result;
+        await act(async () => {
+            result = render(<JWPlayer ref={ref} library={library} {...props} />);
+        });
+        const rerenderPlayer = async (nextProps) => {
+            await act(async () => {
+                result.rerender(<JWPlayer ref={ref} library={library} {...nextProps} />);
+            });
+        };
+        return { instance: ref.current, rerenderPlayer };
+    };
+
+    it('loads the new playlist when the playlist prop changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist });
+
+        await rerenderPlayer({ playlist: otherPlaylist });
+
+        expect(instance.player.load).toHaveBeenCalledWith(otherPlaylist);
+    });
+
+    it('loads the new playlist when an inline playlist array changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ file: 'a.mp4' }] });
+
+        await rerenderPlayer({ playlist: [{ file: 'b.mp4' }] });
+
+        expect(instance.player.load).toHaveBeenCalledWith([{ file: 'b.mp4' }]);
+    });
+
+    it('wraps a bare file in a playlist item, since load takes playlist items', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ file: 'a.mp4' });
+
+        await rerenderPlayer({ file: 'b.mp4' });
+
+        expect(instance.player.load).toHaveBeenCalledWith([{ file: 'b.mp4' }]);
+    });
+
+    it('reads content out of the config prop too', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ config: { playlist } });
+
+        await rerenderPlayer({ config: { playlist: otherPlaylist } });
+
+        expect(instance.player.load).toHaveBeenCalledWith(otherPlaylist);
+    });
+
+    it('does not reload when a deep-equal playlist is passed as a new array', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ file: 'a.mp4' }] });
+
+        await rerenderPlayer({ playlist: [{ file: 'a.mp4' }] });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    it('does not reload when an unrelated prop changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist, width: 500 });
+
+        await rerenderPlayer({ playlist, width: 640 });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    // Inline arrow handlers get a new identity on every parent render, so this
+    // is the common case, not an edge case.
+    it('loads new content even when an on event handler changed in the same update', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist, onPlay: () => {} });
+
+        await rerenderPlayer({ playlist: otherPlaylist, onPlay: () => {} });
+
+        expect(instance.player.load).toHaveBeenCalledWith(otherPlaylist);
+    });
+
+    it('keeps the current content when the new config has none', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist });
+
+        await rerenderPlayer({ advertising: { outstream: true } });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    it('sets up with the props current at setup time, not at construction', async () => {
+        window.jwplayer = null;
+        const ref = React.createRef();
+        let result;
+
+        await act(async () => {
+            result = render(<JWPlayer ref={ref} library={library} playlist={playlist} />);
+        });
+        const [script] = Array.from(document.getElementsByTagName('script'))
+            .filter((tag) => tag.src === library);
+
+        // The playlist changes while the library is still loading.
+        await act(async () => {
+            result.rerender(<JWPlayer ref={ref} library={library} playlist={otherPlaylist} />);
+        });
+
+        window.jwplayer = mockLibrary;
+        await act(async () => {
+            script.onload();
+        });
+
+        const setupConfig = window.jwplayer(ref.current.id).setup.mock.calls[0][0];
+        expect(setupConfig.playlist).toBe(otherPlaylist);
     });
 });

@@ -3,7 +3,7 @@ import {
   ALL, ON_REGEX, ONCE_REGEX,
 } from './const';
 import {
-  generateConfig, generateUniqueId, loadPlayer, getHandlerName,
+  generateConfig, generateUniqueId, loadPlayer, getHandlerName, getContent, deepEqual,
 } from './util';
 
 function createOnEventHandler(props) {
@@ -60,17 +60,23 @@ class JWPlayer extends React.Component {
     }
   }
 
-  shouldComponentUpdate(nextProps) {
+  // The rendered output is a static container div, so an update is only ever
+  // worth running to sync props onto the player in componentDidUpdate. Without
+  // a player there is nothing to sync.
+  shouldComponentUpdate() {
+    return Boolean(this.player);
+  }
+
+  componentDidUpdate(prevProps) {
     if (!this.player) {
-      return false;
+      return;
     }
 
-    if (this.didOnEventsChange(nextProps)) {
-      this.updateOnEventListener(nextProps);
-      return false;
+    if (this.didOnEventsChange(prevProps)) {
+      this.updateOnEventListener(this.props);
     }
 
-    return true;
+    this.syncContent();
   }
 
   componentWillUnmount() {
@@ -87,11 +93,40 @@ class JWPlayer extends React.Component {
   }
 
   createPlayer() {
-    const { config, ref } = this;
-    const setupConfig = { ...window.jwDefaults, ...config };
-    const view = ref.current;
+    // Props can change while the library loads, so set up from the current
+    // props rather than the constructor-time snapshot.
+    this.config = generateConfig(this.props);
+    const setupConfig = { ...window.jwDefaults, ...this.config };
+    const view = this.ref.current;
 
     return window.jwplayer(view.id).setup(setupConfig);
+  }
+
+  // Content is the only setup option the player can swap in place. Every other
+  // config prop is read once at setup, so changing it needs a remount — give
+  // the component a new `key`.
+  syncContent() {
+    const nextConfig = generateConfig(this.props);
+    const prevContent = getContent(this.config);
+    const nextContent = getContent(nextConfig);
+
+    this.config = nextConfig;
+
+    if (deepEqual(prevContent, nextContent)) {
+      return;
+    }
+
+    const { playlist, file } = nextContent;
+
+    if (playlist) {
+      this.player.load(playlist);
+      return;
+    }
+
+    // load() takes playlist items, so a bare media file has to be wrapped.
+    if (file) {
+      this.player.load([{ file }]);
+    }
   }
 
   didOnEventsChange(nextProps) {

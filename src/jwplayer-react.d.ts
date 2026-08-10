@@ -46,6 +46,10 @@ export interface UnmountCallbackArguments {
  *
  * Exception: React reserves the `key` prop and never forwards it, so a player
  * license key only works via `config={{ key: ... }}`.
+ *
+ * After mount, only the content options (`playlist`, `file`) update the running
+ * player, via its load() method. Every other option is read once at setup, so
+ * changing it requires a remount — see "Changing Props After Mount" in the README.
  */
 export interface JWPlayerProps extends JWPlayerConfig {
     didMountCallback?: (args: MountCallbackArguments) => void;

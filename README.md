@@ -13,6 +13,7 @@
 * [Props](#props)
   * [Required Props](#required-props)
   * [Optional Props](#optional-props)
+  * [Changing Props After Mount](#changing-props-after-mount)
   * [API Functionality](#api-functionality)
 * [Advanced Implementation Examples](#advanced-implementation-examples)
 * [Development](#development)
@@ -120,6 +121,30 @@ If you are not using a cloud hosted player you will need to provide a license ke
   * A callback triggered before component unmounts. Can be used to fire any final api calls to player before it is removed, or to inform a higher order component that a player has been removed.
   * Type: `({ player: PlayerAPI, id: string }) => void`
   * Example: See [advanced implementation example](#advanced-implementation-examples)
+
+### Changing Props After Mount
+
+Content props update the existing player. Change `playlist` or `file` and the component calls the player's [`load`](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference) method, so the new media plays:
+
+```jsx
+// Switching playlist swaps the content in the player already on the page.
+<JWPlayer library={library} playlist={selectedPlaylist} />
+```
+
+`playlist` is compared by value, so passing an equal array built fresh on every render does not reload the player.
+
+Every other config option is read once, when the player is set up. Changing one after mount has no effect, because the player cannot reconfigure itself in place. To apply a new config, force a remount by giving the component a `key` that changes with it:
+
+```jsx
+<JWPlayer
+  library={library}
+  playlist={playlist}
+  advertising={advertising}
+  key={adConfigId}
+/>
+```
+
+`on<Event>` and `once<Event>` handler props are always kept current, and changing one never reloads the player.
 
 ### API Functionality
 For advanced usage,`jwplayer-react` creates an instance of the player API when mounted, and sets it to `this.player`, exposing all api functionality listed [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 
