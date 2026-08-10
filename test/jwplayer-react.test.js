@@ -412,3 +412,44 @@ describe('methods', () => {
         });
     });
 });
+
+// The ref/player contract documented in the README's "API Functionality"
+// section. See https://github.com/jwplayer/jwplayer-react/issues/31
+describe('ref access to the player API', () => {
+    it('exposes the player API on the ref once setup completes', async () => {
+        const playerRef = React.createRef();
+
+        await act(async () => {
+            render(<JWPlayer ref={playerRef} library={library} playlist={playlist} />);
+        });
+
+        expect(playerRef.current.player).toBe(players[playerRef.current.id]);
+    });
+
+    it('leaves player null until the library resolves', async () => {
+        window.jwplayer = null;
+        const playerRef = React.createRef();
+
+        // Render without settling the injected script, matching what a parent's
+        // first effect sees: mounted component, player not set up yet.
+        await act(async () => {
+            render(<JWPlayer ref={playerRef} library={library} playlist={playlist} />);
+        });
+
+        expect(playerRef.current.player).toBe(null);
+    });
+
+    it('clears player on unmount so late ref reads cannot use a removed player', async () => {
+        const playerRef = React.createRef();
+        let unmount;
+
+        await act(async () => {
+            ({ unmount } = render(<JWPlayer ref={playerRef} library={library} playlist={playlist} />));
+        });
+        const { current: instance } = playerRef;
+
+        unmount();
+
+        expect(instance.player).toBe(null);
+    });
+});
