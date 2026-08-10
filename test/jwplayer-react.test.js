@@ -451,12 +451,14 @@ describe('content updates', () => {
         expect(instance.player.load).toHaveBeenCalledWith([{ file: 'b.mp4' }]);
     });
 
-    it('wraps a bare file in a playlist item, since load takes playlist items', async () => {
-        const { instance, rerenderPlayer } = await renderPlayer({ file: 'a.mp4' });
+    // Reloading a bare file would mean rebuilding a playlist item and dropping
+    // its sibling top-level options, so file stays setup-only.
+    it('does not reload when only the file prop changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ file: 'a.mp4', image: 'a.jpg' });
 
-        await rerenderPlayer({ file: 'b.mp4' });
+        await rerenderPlayer({ file: 'b.mp4', image: 'a.jpg' });
 
-        expect(instance.player.load).toHaveBeenCalledWith([{ file: 'b.mp4' }]);
+        expect(instance.player.load).not.toHaveBeenCalled();
     });
 
     it('reads content out of the config prop too', async () => {
@@ -497,6 +499,14 @@ describe('content updates', () => {
         const { instance, rerenderPlayer } = await renderPlayer({ playlist });
 
         await rerenderPlayer({ advertising: { outstream: true } });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    it('keeps the current content when the new playlist is empty', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ file: 'a.mp4' }] });
+
+        await rerenderPlayer({ playlist: [] });
 
         expect(instance.player.load).not.toHaveBeenCalled();
     });

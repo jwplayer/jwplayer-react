@@ -3,7 +3,7 @@ import {
   ALL, ON_REGEX, ONCE_REGEX,
 } from './const';
 import {
-  generateConfig, generateUniqueId, loadPlayer, getHandlerName, getContent, deepEqual,
+  generateConfig, generateUniqueId, loadPlayer, getHandlerName, deepEqual,
 } from './util';
 
 function createOnEventHandler(props) {
@@ -102,31 +102,32 @@ class JWPlayer extends React.Component {
     return window.jwplayer(view.id).setup(setupConfig);
   }
 
-  // Content is the only setup option the player can swap in place. Every other
-  // config prop is read once at setup, so changing it needs a remount — give
-  // the component a new `key`.
+  // The playlist is the only setup option the player can swap in place. Every
+  // other config prop is read once at setup, so changing it needs a remount —
+  // give the component a new `key`.
+  //
+  // `file` is deliberately excluded. Reloading it would mean rebuilding a
+  // playlist item, which silently drops the sibling top-level item options
+  // (image, tracks, title, ...) that this package forwards without knowing their
+  // schema.
   syncContent() {
     const nextConfig = generateConfig(this.props);
-    const prevContent = getContent(this.config);
-    const nextContent = getContent(nextConfig);
+    const prevPlaylist = this.config.playlist;
+    const { playlist } = nextConfig;
 
     this.config = nextConfig;
 
-    if (deepEqual(prevContent, nextContent)) {
+    if (deepEqual(prevPlaylist, playlist)) {
       return;
     }
 
-    const { playlist, file } = nextContent;
-
-    if (playlist) {
-      this.player.load(playlist);
+    // An empty or absent playlist must not blank out a playing player; content
+    // that arrives later still triggers a load.
+    if (!playlist || playlist.length === 0) {
       return;
     }
 
-    // load() takes playlist items, so a bare media file has to be wrapped.
-    if (file) {
-      this.player.load([{ file }]);
-    }
+    this.player.load(playlist);
   }
 
   didOnEventsChange(nextProps) {

@@ -92,13 +92,6 @@ export function deepEqual(a, b) {
   ));
 }
 
-// The content the player is asked to play. This is the only part of the setup
-// config the player can swap in place, via load().
-export function getContent(config) {
-  const { playlist, file } = config;
-  return { playlist, file };
-}
-
 export function getHandlerName(prop, regex) {
   const match = prop.match(regex) || ['', ''];
 

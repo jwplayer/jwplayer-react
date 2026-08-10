@@ -124,16 +124,16 @@ If you are not using a cloud hosted player you will need to provide a license ke
 
 ### Changing Props After Mount
 
-Content props update the existing player. Change `playlist` or `file` and the component calls the player's [`load`](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference) method, so the new media plays:
+The `playlist` prop updates the existing player. Change it and the component calls the player's [`load`](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference) method, so the new media plays:
 
 ```jsx
 // Switching playlist swaps the content in the player already on the page.
 <JWPlayer library={library} playlist={selectedPlaylist} />
 ```
 
-`playlist` is compared by value, so passing an equal array built fresh on every render does not reload the player.
+`playlist` is compared by value, so passing an equal array built fresh on every render does not reload the player. An empty or absent playlist is ignored, so it never blanks out a player that is already playing.
 
-Every other config option is read once, when the player is set up. Changing one after mount has no effect, because the player cannot reconfigure itself in place. To apply a new config, force a remount by giving the component a `key` that changes with it:
+Every other config option, including `file`, is read once when the player is set up. Changing one after mount has no effect, because the player cannot reconfigure itself in place. To apply a new config, force a remount by giving the component a `key` that changes with it:
 
 ```jsx
 <JWPlayer
