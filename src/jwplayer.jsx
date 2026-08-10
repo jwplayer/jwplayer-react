@@ -3,7 +3,7 @@ import {
   ALL, ON_REGEX, ONCE_REGEX,
 } from './const';
 import {
-  generateConfig, generateUniqueId, loadPlayer, getHandlerName,
+  generateConfig, generateUniqueId, loadPlayer, getHandlerName, isDeepEqual,
 } from './util';
 
 function createOnEventHandler(props) {
@@ -61,9 +61,19 @@ class JWPlayer extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
+    const prevPlaylist = this.config.playlist;
+
+    // Track the latest props even before the player exists: a change that lands
+    // while the library is still loading has to reach the pending setup() call.
+    this.config = generateConfig(nextProps);
+
     if (!this.player) {
       return false;
     }
+
+    // The rendered output is always the same container div, so a playlist
+    // change reaches the player through its API here, not through a re-render.
+    this.loadPlaylist(prevPlaylist);
 
     if (this.didOnEventsChange(nextProps)) {
       this.updateOnEventListener(nextProps);
@@ -92,6 +102,26 @@ class JWPlayer extends React.Component {
     const view = ref.current;
 
     return window.jwplayer(view.id).setup(setupConfig);
+  }
+
+  // Load new content when the playlist changes. Only the playlist is applied
+  // after setup: the rest of the config is read by the player when it is
+  // created, and re-running setup() to change it would tear down playback.
+  // https://docs.jwplayer.com/players/reference/javascript-player-api-introduction
+  loadPlaylist(prevPlaylist) {
+    const { playlist } = this.config;
+
+    // An absent or empty playlist means the content has not resolved yet, not
+    // that a playing player should be blanked out.
+    if (playlist == null || playlist.length === 0) {
+      return;
+    }
+
+    if (isDeepEqual(prevPlaylist, playlist)) {
+      return;
+    }
+
+    this.player.load(playlist);
   }
 
   didOnEventsChange(nextProps) {

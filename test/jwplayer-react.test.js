@@ -5,7 +5,7 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import JWPlayer from '../src/jwplayer';
-import { loadPlayer } from '../src/util';
+import { loadPlayer, isDeepEqual } from '../src/util';
 import { mockLibrary, players } from './util';
 
 const noop = () => {};
@@ -241,6 +241,125 @@ describe('methods', () => {
             const nextProps = { onPlay: noop };
             const eventsChange = instance.didOnEventsChange(nextProps);
             expect(eventsChange).toBe(true);
+        });
+    });
+
+    describe('isDeepEqual', () => {
+        it.each([
+            ['identical primitives', 'a.mp4', 'a.mp4', true],
+            ['different primitives', 'a.mp4', 'b.mp4', false],
+            ['a primitive and an object', 'a.mp4', { file: 'a.mp4' }, false],
+            ['null and an object', null, {}, false],
+            ['an array and an object', [], {}, false],
+            ['objects with different key counts', { a: 1 }, { a: 1, b: 2 }, false],
+            ['objects with different keys', { a: undefined }, { b: undefined }, false],
+            ['nested equal values', { a: [{ b: 1 }] }, { a: [{ b: 1 }] }, true],
+            ['nested different values', { a: [{ b: 1 }] }, { a: [{ b: 2 }] }, false],
+        ])('compares %s', (_name, a, b, expected) => {
+            expect(isDeepEqual(a, b)).toBe(expected);
+        });
+    });
+
+    describe('loadPlaylist', () => {
+        const nextPlaylist = 'https://cdn.jwplayer.com/v2/media/QcK3l9Uv';
+
+        // Mount with the given props, then re-render with the next set of props.
+        const rerenderWith = async (props, nextProps) => {
+            const ref = React.createRef();
+            let rerender;
+            await act(async () => {
+                ({ rerender } = render(<JWPlayer ref={ref} library={library} {...props} />));
+            });
+            const { player } = ref.current;
+
+            await act(async () => {
+                rerender(<JWPlayer ref={ref} library={library} {...nextProps} />);
+            });
+
+            return player.load;
+        };
+
+        it('loads the new playlist when the playlist prop changes', async () => {
+            const load = await rerenderWith({ playlist }, { playlist: nextPlaylist });
+            expect(load.mock.calls).toEqual([[nextPlaylist]]);
+        });
+
+        it('loads the new playlist when playlist items change', async () => {
+            const load = await rerenderWith(
+                { playlist: [{ file: 'first.mp4' }] },
+                { playlist: [{ file: 'second.mp4' }] }
+            );
+            expect(load.mock.calls).toEqual([[[{ file: 'second.mp4' }]]]);
+        });
+
+        it('does not reload when a new playlist array holds the same items', async () => {
+            const load = await rerenderWith(
+                { playlist: [{ file: 'same.mp4', tracks: [{ label: 'English' }] }] },
+                { playlist: [{ file: 'same.mp4', tracks: [{ label: 'English' }] }] }
+            );
+            expect(load).not.toHaveBeenCalled();
+        });
+
+        it('loads the new playlist when it is nested in the config prop', async () => {
+            const load = await rerenderWith(
+                { config: { playlist } },
+                { config: { playlist: nextPlaylist } }
+            );
+            expect(load.mock.calls).toEqual([[nextPlaylist]]);
+        });
+
+        it('does not reload when a config prop other than the playlist changes', async () => {
+            const load = await rerenderWith({ playlist, width: 400 }, { playlist, width: 500 });
+            expect(load).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ['removed', undefined],
+            ['null', null],
+            ['an empty string', ''],
+            ['an empty array', []],
+        ])('does not reload when the playlist becomes %s', async (_name, nextValue) => {
+            const load = await rerenderWith({ playlist }, { playlist: nextValue });
+            expect(load).not.toHaveBeenCalled();
+        });
+
+        it('loads the new playlist when an event handler changes in the same update', async () => {
+            const load = await rerenderWith(
+                { playlist, onPlay: noop },
+                { playlist: nextPlaylist, onPlay: () => {} }
+            );
+            expect(load.mock.calls).toEqual([[nextPlaylist]]);
+        });
+
+        it('sets up with the latest playlist when it changed before the library loaded', async () => {
+            window.jwplayer = null;
+            const ref = React.createRef();
+            let rerender;
+            act(() => {
+                ({ rerender } = render(<JWPlayer ref={ref} library={library} playlist={playlist} />));
+            });
+            const script = Array.from(document.getElementsByTagName('script')).pop();
+
+            // The playlist resolves while the library request is still in flight.
+            act(() => {
+                rerender(<JWPlayer ref={ref} library={library} playlist={nextPlaylist} />);
+            });
+
+            window.jwplayer = mockLibrary;
+            await act(async () => {
+                script.onload();
+            });
+
+            const { id, player } = ref.current;
+            expect(window.jwplayer(id).setup.mock.calls)
+                .toEqual([[{ playlist: nextPlaylist, isReactComponent: true }]]);
+            expect(player.load).not.toHaveBeenCalled();
+        });
+
+        it('tracks the latest config even when the playlist is unchanged', async () => {
+            const { instance } = await createMountedComponent();
+            instance.shouldComponentUpdate({ playlist, width: 500 });
+            expect(instance.config).toEqual({ playlist, width: 500, isReactComponent: true });
         });
     });
 

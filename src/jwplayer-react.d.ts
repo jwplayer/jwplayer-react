@@ -25,6 +25,8 @@ export interface JWPlayerApi {
     off(event?: string, callback?: EventCallback): JWPlayerApi;
     remove(): void;
     setup(config: JWPlayerConfig | object): JWPlayerApi;
+    /** A playlist feed url, or an array of playlist items */
+    load(playlist: string | object[]): JWPlayerApi;
     [member: string]: unknown;
 }
 

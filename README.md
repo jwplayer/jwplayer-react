@@ -13,6 +13,7 @@
 * [Props](#props)
   * [Required Props](#required-props)
   * [Optional Props](#optional-props)
+  * [Changing Props](#changing-props)
   * [API Functionality](#api-functionality)
 * [Advanced Implementation Examples](#advanced-implementation-examples)
 * [Development](#development)
@@ -120,6 +121,26 @@ If you are not using a cloud hosted player you will need to provide a license ke
   * A callback triggered before component unmounts. Can be used to fire any final api calls to player before it is removed, or to inform a higher order component that a player has been removed.
   * Type: `({ player: PlayerAPI, id: string }) => void`
   * Example: See [advanced implementation example](#advanced-implementation-examples)
+
+### Changing Props
+
+Two props keep working after the player is created:
+
+* `playlist` loads the new content. The player is reused, so playback moves to the new media. A playlist that is empty, `null`, or `undefined` is ignored, so content that arrives later (from a fetch, for example) does not blank out a playing player.
+* `on<Event>` handlers are re-subscribed, so the player always calls the latest one. `once<Event>` handlers are subscribed at mount only.
+
+Every other config prop, `file` and `sources` included, is only read when the player is created. Use `playlist` for content that changes:
+
+``` javascript
+// Reuses the player and loads the new item
+<JWPlayer library={library} playlist={[{ file, image }]} />
+```
+
+To change any other config prop, give the component a new `key` so React unmounts the old player and creates a new one:
+
+``` javascript
+<JWPlayer library={library} playlist={playlist} width={width} key={width} />
+```
 
 ### API Functionality
 For advanced usage,`jwplayer-react` creates an instance of the player API when mounted, and sets it to `this.player`, exposing all api functionality listed [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 

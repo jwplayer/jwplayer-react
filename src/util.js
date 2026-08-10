@@ -76,6 +76,24 @@ export function generateConfig(props) {
   return { ...props.config, ...config, isReactComponent: true };
 }
 
+// A playlist is plain data (a feed url, or an array of playlist items), so a
+// structural comparison is what tells a real content change apart from a new
+// array or object literal rendered with the same values.
+export function isDeepEqual(a, b) {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+
+  if (aKeys.length !== bKeys.length) return false;
+
+  return aKeys.every((key) => (
+    Object.prototype.hasOwnProperty.call(b, key) && isDeepEqual(a[key], b[key])
+  ));
+}
+
 export function getHandlerName(prop, regex) {
   const match = prop.match(regex) || ['', ''];
 
