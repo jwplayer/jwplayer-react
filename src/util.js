@@ -37,9 +37,43 @@ export function createPlayerLoadPromise(url) {
 // can be retried.
 const loadPromises = new Map();
 
+// How long to wait for a library the consumer loads themselves before giving up.
+export const EXTERNAL_LIBRARY_TIMEOUT_MS = 10000;
+const EXTERNAL_LIBRARY_POLL_MS = 50;
+
+// window.jwplayer must be callable, not merely present: a library script that is
+// still executing, or a placeholder left by another integration, would otherwise
+// be mistaken for a ready player and fail inside setup().
+function isLibraryReady() {
+  return typeof window.jwplayer === 'function';
+}
+
+// Without a library prop the consumer loads the script themselves — a Next.js
+// <Script>, a tag in index.html — and that script can still be pending when a
+// player mounts. Nothing fires an event when window.jwplayer is assigned, so
+// poll for it instead of failing the mount outright.
+function waitForExternalLibrary() {
+  return new Promise((resolve, reject) => {
+    const deadline = Date.now() + EXTERNAL_LIBRARY_TIMEOUT_MS;
+    const poll = setInterval(() => {
+      if (isLibraryReady()) {
+        clearInterval(poll);
+        resolve();
+        return;
+      }
+
+      if (Date.now() >= deadline) {
+        clearInterval(poll);
+        reject(new Error('jwplayer-react requires either a library prop, or a library script. Waited '
+          + `${EXTERNAL_LIBRARY_TIMEOUT_MS}ms for window.jwplayer and it was never defined.`));
+      }
+    }, EXTERNAL_LIBRARY_POLL_MS);
+  });
+}
+
 export function loadPlayer(url) {
-  if (!window.jwplayer && !url) throw new Error('jwplayer-react requires either a library prop, or a library script');
-  if (window.jwplayer) return Promise.resolve();
+  if (isLibraryReady()) return Promise.resolve();
+  if (!url) return waitForExternalLibrary();
 
   const pending = loadPromises.get(url);
   if (pending && pending.script.isConnected) {

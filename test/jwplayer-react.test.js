@@ -5,7 +5,7 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import JWPlayer from '../src/jwplayer';
-import { loadPlayer } from '../src/util';
+import { loadPlayer, EXTERNAL_LIBRARY_TIMEOUT_MS } from '../src/util';
 import { mockLibrary, players } from './util';
 
 const noop = () => {};
@@ -21,6 +21,7 @@ afterEach(() => {
     window.jwplayer = null;
     document.querySelectorAll('script').forEach((script) => script.remove());
     jest.restoreAllMocks();
+    jest.useRealTimers();
 });
 
 const createMountedComponent = async (props = {}) => {
@@ -63,9 +64,17 @@ describe('setup', () => {
         checkTests();
     });
 
-    it('Errors with no library and falsey window.jwplayer', () => {
+    // Used to throw synchronously. It now waits for a library the consumer loads
+    // themselves, so the same error arrives as a rejection after the timeout.
+    it('Errors with no library and falsey window.jwplayer', async () => {
+        jest.useFakeTimers();
         window.jwplayer = null;
-        expect(() => loadPlayer()).toThrow("jwplayer-react requires either a library prop, or a library script");
+
+        const rejection = expect(loadPlayer()).rejects
+            .toThrow('jwplayer-react requires either a library prop, or a library script');
+        jest.advanceTimersByTime(EXTERNAL_LIBRARY_TIMEOUT_MS + 100);
+
+        await rejection;
     });
 
     it('creates a script tag when mounted if window.jwplayer is not defined', () => {
@@ -410,5 +419,89 @@ describe('methods', () => {
             scriptB.onload();
             await expect(second).resolves.toBeUndefined();
         });
+    });
+});
+
+// A library the consumer loads themselves can still be pending at mount.
+// See https://github.com/jwplayer/jwplayer-react/issues/12
+describe('externally loaded library', () => {
+    it('waits for window.jwplayer and sets up once it appears', async () => {
+        jest.useFakeTimers();
+        window.jwplayer = null;
+        const ref = React.createRef();
+
+        // No library prop: the consumer's own script tag has not run yet.
+        await act(async () => {
+            render(<JWPlayer ref={ref} playlist={playlist} />);
+        });
+        expect(ref.current.player).toBe(null);
+
+        window.jwplayer = mockLibrary;
+        await act(async () => {
+            jest.advanceTimersByTime(100);
+        });
+
+        expect(ref.current.player).toBe(players[ref.current.id]);
+    });
+
+    it('logs and creates no player when the external library never appears', async () => {
+        jest.useFakeTimers();
+        window.jwplayer = null;
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const ref = React.createRef();
+
+        await act(async () => {
+            render(<JWPlayer ref={ref} playlist={playlist} />);
+        });
+
+        await act(async () => {
+            jest.advanceTimersByTime(EXTERNAL_LIBRARY_TIMEOUT_MS + 100);
+        });
+
+        expect(ref.current.player).toBe(null);
+        expect(errorSpy).toHaveBeenCalled();
+    });
+
+    // Asserted against loadPlayer directly so React's own scheduler timers do
+    // not count towards the total.
+    it('stops polling once the library resolves', async () => {
+        jest.useFakeTimers();
+        window.jwplayer = null;
+
+        const pending = loadPlayer();
+        expect(jest.getTimerCount()).toBe(1);
+
+        window.jwplayer = mockLibrary;
+        jest.advanceTimersByTime(100);
+        await pending;
+
+        expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('stops polling when it gives up', async () => {
+        jest.useFakeTimers();
+        window.jwplayer = null;
+
+        const rejection = expect(loadPlayer()).rejects.toThrow('never defined');
+        jest.advanceTimersByTime(EXTERNAL_LIBRARY_TIMEOUT_MS + 100);
+        await rejection;
+
+        expect(jest.getTimerCount()).toBe(0);
+    });
+
+    // The failure reported in the issue: window.jwplayer was present but not yet
+    // callable, so setup() blew up.
+    it('does not treat a non-callable window.jwplayer as ready', async () => {
+        window.jwplayer = { partiallyInitialized: true };
+        const ref = React.createRef();
+
+        await act(async () => {
+            render(<JWPlayer ref={ref} library={library} playlist={playlist} />);
+        });
+
+        const scripts = Array.from(document.getElementsByTagName('script'))
+            .filter((tag) => tag.src === library);
+        expect(scripts.length).toBe(1);
+        expect(ref.current.player).toBe(null);
     });
 });

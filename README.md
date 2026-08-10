@@ -85,6 +85,7 @@ These props are required to instantiate an instance of JW Player:
   * Must be a url to a jwplayer web player library. Required if jwplayer library not already instantiated on page (ie. if window.jwplayer is undefined).
   * Type: `string`
   * Example: `https://content.jwplatform.com/libraries/abcd1234.js`
+  * If you load the library yourself — a `<script>` tag in your HTML, or a Next.js `<Script>` — you can omit this prop. The component then waits up to 10 seconds for `window.jwplayer` to appear, so a player that mounts before your script finishes still sets up. If it never appears, the component logs an error and creates no player.
   <br>
 * `playlist` OR `file` OR `advertising` block with `oustream: true`
   * Player will require content in order to instantiate. See more [here](https://developer.jwplayer.com/jwplayer/docs/jw8-player-configuration-reference).
