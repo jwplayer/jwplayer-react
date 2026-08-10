@@ -156,26 +156,39 @@ function Player() {
 }
 ```
 
-`ref.current.player` is `null` in two cases:
+`ref.current.player` is `null` in three cases:
 
-* Before the player is set up. The component loads the player library over the network, so setup finishes after mount. A parent's first `useEffect` still sees `null`.
+* Before the player is set up. The component loads the player library over the network, so setup finishes after mount. A parent's first `useEffect` may still see `null`.
+* When the library script fails to load. The failure is logged to the console and the player is never created, so `player` stays `null` for the component's whole life.
 * After the component unmounts.
 
-Guard every access with `?.`, as above. Event handlers and callbacks run after setup, so they are always safe.
+Guard every access with `?.`, as above. `on<Event>` and `once<Event>` handlers, and `didMountCallback`, only run after setup, so their player is always set. `willUnmountCallback` also fires when setup never happened, so its `player` argument can be `null`.
 
 #### With `didMountCallback`
 
 Use `didMountCallback` when you need the player as soon as it exists, for example to store it in state or a context:
 
 ```jsx
-const [player, setPlayer] = useState(null);
+import { useState } from 'react';
+import JWPlayer from '@jwplayer/jwplayer-react';
 
-<JWPlayer
-  library="https://cdn.jwplayer.com/libraries/abcd1234.js"
-  playlist="https://cdn.jwplayer.com/v2/playlists/abcd1234"
-  didMountCallback={({ player: api }) => setPlayer(api)}
-  willUnmountCallback={() => setPlayer(null)}
-/>
+function Player() {
+  const [player, setPlayer] = useState(null);
+
+  return (
+    <>
+      <JWPlayer
+        library="https://cdn.jwplayer.com/libraries/abcd1234.js"
+        playlist="https://cdn.jwplayer.com/v2/playlists/abcd1234"
+        didMountCallback={({ player: api }) => setPlayer(api)}
+        willUnmountCallback={() => setPlayer(null)}
+      />
+      <button type="button" disabled={!player} onClick={() => player.pause()}>
+        Pause
+      </button>
+    </>
+  );
+}
 ```
 
 ## Advanced Implementation Examples

@@ -426,7 +426,7 @@ describe('ref access to the player API', () => {
         expect(playerRef.current.player).toBe(players[playerRef.current.id]);
     });
 
-    it('leaves player null until the library resolves', async () => {
+    it('leaves player null until the library resolves, then sets it', async () => {
         window.jwplayer = null;
         const playerRef = React.createRef();
 
@@ -435,8 +435,19 @@ describe('ref access to the player API', () => {
         await act(async () => {
             render(<JWPlayer ref={playerRef} library={library} playlist={playlist} />);
         });
+        const [script] = Array.from(document.getElementsByTagName('script'))
+            .filter((tag) => tag.src === library);
 
         expect(playerRef.current.player).toBe(null);
+
+        // Settling the load must end the null window, otherwise a regression that
+        // never sets up the player would pass this test too.
+        window.jwplayer = mockLibrary;
+        await act(async () => {
+            script.onload();
+        });
+
+        expect(playerRef.current.player).toBe(players[playerRef.current.id]);
     });
 
     it('clears player on unmount so late ref reads cannot use a removed player', async () => {
