@@ -144,7 +144,7 @@ Every other config option, including `file`, is read once when the player is set
 />
 ```
 
-`on<Event>` and `once<Event>` handler props are always kept current, and changing one never reloads the player.
+`on<Event>` handler props are re-subscribed on every change, so the player always calls the latest one, and changing one never reloads the player. `once<Event>` handlers are subscribed at mount only.
 
 ### API Functionality
 For advanced usage,`jwplayer-react` creates an instance of the player API when mounted, and sets it to `this.player`, exposing all api functionality listed [here](https://developer.jwplayer.com/jwplayer/docs/jw8-javascript-api-reference). 

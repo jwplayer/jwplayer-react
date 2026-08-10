@@ -5,7 +5,7 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import JWPlayer from '../src/jwplayer';
-import { loadPlayer } from '../src/util';
+import { loadPlayer, deepEqual } from '../src/util';
 import { mockLibrary, players } from './util';
 
 const noop = () => {};
@@ -152,6 +152,22 @@ describe('methods', () => {
                 isReactComponent: true,
                 playlist: 'https://cdn.jwplayer.com/v2/media/1g8jjku3'
             });
+        });
+    });
+
+    describe('deepEqual', () => {
+        it.each([
+            ['identical primitives', 'a.mp4', 'a.mp4', true],
+            ['different primitives', 'a.mp4', 'b.mp4', false],
+            ['a primitive and an object', 'a.mp4', { file: 'a.mp4' }, false],
+            ['null and an object', null, {}, false],
+            ['an array and an object', [], {}, false],
+            ['objects with different key counts', { a: 1 }, { a: 1, b: 2 }, false],
+            ['objects with different keys', { a: undefined }, { b: undefined }, false],
+            ['nested equal values', { a: [{ b: 1 }] }, { a: [{ b: 1 }] }, true],
+            ['nested different values', { a: [{ b: 1 }] }, { a: [{ b: 2 }] }, false],
+        ])('compares %s', (_name, a, b, expected) => {
+            expect(deepEqual(a, b)).toBe(expected);
         });
     });
 
@@ -440,7 +456,7 @@ describe('content updates', () => {
 
         await rerenderPlayer({ playlist: otherPlaylist });
 
-        expect(instance.player.load).toHaveBeenCalledWith(otherPlaylist);
+        expect(instance.player.load.mock.calls).toEqual([[otherPlaylist]]);
     });
 
     it('loads the new playlist when an inline playlist array changes', async () => {
@@ -448,7 +464,7 @@ describe('content updates', () => {
 
         await rerenderPlayer({ playlist: [{ file: 'b.mp4' }] });
 
-        expect(instance.player.load).toHaveBeenCalledWith([{ file: 'b.mp4' }]);
+        expect(instance.player.load.mock.calls).toEqual([[[{ file: 'b.mp4' }]]]);
     });
 
     // Reloading a bare file would mean rebuilding a playlist item and dropping
@@ -466,13 +482,14 @@ describe('content updates', () => {
 
         await rerenderPlayer({ config: { playlist: otherPlaylist } });
 
-        expect(instance.player.load).toHaveBeenCalledWith(otherPlaylist);
+        expect(instance.player.load.mock.calls).toEqual([[otherPlaylist]]);
     });
 
     it('does not reload when a deep-equal playlist is passed as a new array', async () => {
-        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ file: 'a.mp4' }] });
+        const item = { file: 'a.mp4', tracks: [{ label: 'English', kind: 'captions' }] };
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ ...item }] });
 
-        await rerenderPlayer({ playlist: [{ file: 'a.mp4' }] });
+        await rerenderPlayer({ playlist: [{ ...item }] });
 
         expect(instance.player.load).not.toHaveBeenCalled();
     });
@@ -492,7 +509,7 @@ describe('content updates', () => {
 
         await rerenderPlayer({ playlist: otherPlaylist, onPlay: () => {} });
 
-        expect(instance.player.load).toHaveBeenCalledWith(otherPlaylist);
+        expect(instance.player.load.mock.calls).toEqual([[otherPlaylist]]);
     });
 
     it('keeps the current content when the new config has none', async () => {
@@ -503,10 +520,16 @@ describe('content updates', () => {
         expect(instance.player.load).not.toHaveBeenCalled();
     });
 
-    it('keeps the current content when the new playlist is empty', async () => {
-        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ file: 'a.mp4' }] });
+    // Content that has not resolved yet must not blank out a playing player.
+    it.each([
+        ['removed', undefined],
+        ['null', null],
+        ['an empty string', ''],
+        ['an empty array', []],
+    ])('keeps the current content when the playlist becomes %s', async (_name, nextValue) => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist });
 
-        await rerenderPlayer({ playlist: [] });
+        await rerenderPlayer({ playlist: nextValue });
 
         expect(instance.player.load).not.toHaveBeenCalled();
     });
