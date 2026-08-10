@@ -3,7 +3,7 @@ import {
   ALL, ON_REGEX, ONCE_REGEX,
 } from './const';
 import {
-  generateConfig, generateUniqueId, loadPlayer, getHandlerName,
+  generateConfig, generateUniqueId, loadPlayer, getHandlerName, deepEqual,
 } from './util';
 
 function createOnEventHandler(props) {
@@ -60,17 +60,23 @@ class JWPlayer extends React.Component {
     }
   }
 
-  shouldComponentUpdate(nextProps) {
+  // The rendered output is a static container div, so an update is only ever
+  // worth running to sync props onto the player in componentDidUpdate. Without
+  // a player there is nothing to sync.
+  shouldComponentUpdate() {
+    return Boolean(this.player);
+  }
+
+  componentDidUpdate(prevProps) {
     if (!this.player) {
-      return false;
+      return;
     }
 
-    if (this.didOnEventsChange(nextProps)) {
-      this.updateOnEventListener(nextProps);
-      return false;
+    if (this.didOnEventsChange(prevProps)) {
+      this.updateOnEventListener(this.props);
     }
 
-    return true;
+    this.syncContent();
   }
 
   componentWillUnmount() {
@@ -87,11 +93,41 @@ class JWPlayer extends React.Component {
   }
 
   createPlayer() {
-    const { config, ref } = this;
-    const setupConfig = { ...window.jwDefaults, ...config };
-    const view = ref.current;
+    // Props can change while the library loads, so set up from the current
+    // props rather than the constructor-time snapshot.
+    this.config = generateConfig(this.props);
+    const setupConfig = { ...window.jwDefaults, ...this.config };
+    const view = this.ref.current;
 
     return window.jwplayer(view.id).setup(setupConfig);
+  }
+
+  // The playlist is the only setup option the player can swap in place. Every
+  // other config prop is read once at setup, so changing it needs a remount —
+  // give the component a new `key`.
+  //
+  // `file` is deliberately excluded. Reloading it would mean rebuilding a
+  // playlist item, which silently drops the sibling top-level item options
+  // (image, tracks, title, ...) that this package forwards without knowing their
+  // schema.
+  syncContent() {
+    const nextConfig = generateConfig(this.props);
+    const prevPlaylist = this.config.playlist;
+    const { playlist } = nextConfig;
+
+    this.config = nextConfig;
+
+    if (deepEqual(prevPlaylist, playlist)) {
+      return;
+    }
+
+    // An empty or absent playlist must not blank out a playing player; content
+    // that arrives later still triggers a load.
+    if (!playlist || playlist.length === 0) {
+      return;
+    }
+
+    this.player.load(playlist);
   }
 
   didOnEventsChange(nextProps) {

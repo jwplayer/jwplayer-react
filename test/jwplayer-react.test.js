@@ -5,7 +5,7 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import JWPlayer from '../src/jwplayer';
-import { loadPlayer } from '../src/util';
+import { loadPlayer, deepEqual } from '../src/util';
 import { mockLibrary, players } from './util';
 
 const noop = () => {};
@@ -155,6 +155,22 @@ describe('methods', () => {
         });
     });
 
+    describe('deepEqual', () => {
+        it.each([
+            ['identical primitives', 'a.mp4', 'a.mp4', true],
+            ['different primitives', 'a.mp4', 'b.mp4', false],
+            ['a primitive and an object', 'a.mp4', { file: 'a.mp4' }, false],
+            ['null and an object', null, {}, false],
+            ['an array and an object', [], {}, false],
+            ['objects with different key counts', { a: 1 }, { a: 1, b: 2 }, false],
+            ['objects with different keys', { a: undefined }, { b: undefined }, false],
+            ['nested equal values', { a: [{ b: 1 }] }, { a: [{ b: 1 }] }, true],
+            ['nested different values', { a: [{ b: 1 }] }, { a: [{ b: 2 }] }, false],
+        ])('compares %s', (_name, a, b, expected) => {
+            expect(deepEqual(a, b)).toBe(expected);
+        });
+    });
+
     it('createEventListeners', async () => {
         const { instance } = await createMountedComponent({ onReady: noop, onPlay: noop, oncePause: noop });
         const id = instance.id;
@@ -282,11 +298,14 @@ describe('methods', () => {
             expect(shouldUpdate).toBe(true);
         });
 
-        it('should not update component if on event props change', async () => {
+        // Event listeners used to be re-subscribed from shouldComponentUpdate,
+        // which then returned false. That dropped any config change landing in
+        // the same update, so the work moved to componentDidUpdate.
+        it('should update component if on event props change', async () => {
             const { instance } = await createMountedComponent();
             const nextProps = { onPlay: noop };
             const shouldUpdate = instance.shouldComponentUpdate(nextProps);
-            expect(shouldUpdate).toBe(false);
+            expect(shouldUpdate).toBe(true);
         });
 
         it('should not update component if player does not exist', async () => {
@@ -410,5 +429,133 @@ describe('methods', () => {
             scriptB.onload();
             await expect(second).resolves.toBeUndefined();
         });
+    });
+});
+
+// Content props must reach an already-created player.
+// See https://github.com/jwplayer/jwplayer-react/issues/20
+describe('content updates', () => {
+    const otherPlaylist = 'https://cdn.jwplayer.com/v2/media/abcd1234';
+
+    const renderPlayer = async (props) => {
+        const ref = React.createRef();
+        let result;
+        await act(async () => {
+            result = render(<JWPlayer ref={ref} library={library} {...props} />);
+        });
+        const rerenderPlayer = async (nextProps) => {
+            await act(async () => {
+                result.rerender(<JWPlayer ref={ref} library={library} {...nextProps} />);
+            });
+        };
+        return { instance: ref.current, rerenderPlayer };
+    };
+
+    it('loads the new playlist when the playlist prop changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist });
+
+        await rerenderPlayer({ playlist: otherPlaylist });
+
+        expect(instance.player.load.mock.calls).toEqual([[otherPlaylist]]);
+    });
+
+    it('loads the new playlist when an inline playlist array changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ file: 'a.mp4' }] });
+
+        await rerenderPlayer({ playlist: [{ file: 'b.mp4' }] });
+
+        expect(instance.player.load.mock.calls).toEqual([[[{ file: 'b.mp4' }]]]);
+    });
+
+    // Reloading a bare file would mean rebuilding a playlist item and dropping
+    // its sibling top-level options, so file stays setup-only.
+    it('does not reload when only the file prop changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ file: 'a.mp4', image: 'a.jpg' });
+
+        await rerenderPlayer({ file: 'b.mp4', image: 'a.jpg' });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    it('reads content out of the config prop too', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ config: { playlist } });
+
+        await rerenderPlayer({ config: { playlist: otherPlaylist } });
+
+        expect(instance.player.load.mock.calls).toEqual([[otherPlaylist]]);
+    });
+
+    it('does not reload when a deep-equal playlist is passed as a new array', async () => {
+        const item = { file: 'a.mp4', tracks: [{ label: 'English', kind: 'captions' }] };
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist: [{ ...item }] });
+
+        await rerenderPlayer({ playlist: [{ ...item }] });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    it('does not reload when an unrelated prop changes', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist, width: 500 });
+
+        await rerenderPlayer({ playlist, width: 640 });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    // Inline arrow handlers get a new identity on every parent render, so this
+    // is the common case, not an edge case.
+    it('loads new content even when an on event handler changed in the same update', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist, onPlay: () => {} });
+
+        await rerenderPlayer({ playlist: otherPlaylist, onPlay: () => {} });
+
+        expect(instance.player.load.mock.calls).toEqual([[otherPlaylist]]);
+    });
+
+    it('keeps the current content when the new config has none', async () => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist });
+
+        await rerenderPlayer({ advertising: { outstream: true } });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    // Content that has not resolved yet must not blank out a playing player.
+    it.each([
+        ['removed', undefined],
+        ['null', null],
+        ['an empty string', ''],
+        ['an empty array', []],
+    ])('keeps the current content when the playlist becomes %s', async (_name, nextValue) => {
+        const { instance, rerenderPlayer } = await renderPlayer({ playlist });
+
+        await rerenderPlayer({ playlist: nextValue });
+
+        expect(instance.player.load).not.toHaveBeenCalled();
+    });
+
+    it('sets up with the props current at setup time, not at construction', async () => {
+        window.jwplayer = null;
+        const ref = React.createRef();
+        let result;
+
+        await act(async () => {
+            result = render(<JWPlayer ref={ref} library={library} playlist={playlist} />);
+        });
+        const [script] = Array.from(document.getElementsByTagName('script'))
+            .filter((tag) => tag.src === library);
+
+        // The playlist changes while the library is still loading.
+        await act(async () => {
+            result.rerender(<JWPlayer ref={ref} library={library} playlist={otherPlaylist} />);
+        });
+
+        window.jwplayer = mockLibrary;
+        await act(async () => {
+            script.onload();
+        });
+
+        const setupConfig = window.jwplayer(ref.current.id).setup.mock.calls[0][0];
+        expect(setupConfig.playlist).toBe(otherPlaylist);
     });
 });

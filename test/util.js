@@ -7,8 +7,9 @@ const createMockAPI = (id) => {
     const off = jest.fn(() => api);
     const remove = jest.fn(() => api);
     const setup = jest.fn(() => api);
+    const load = jest.fn(() => api);
 
-    Object.assign(api, { on, once, off, remove, setup });
+    Object.assign(api, { on, once, off, remove, setup, load });
     players[id] = api;
 
     return api;

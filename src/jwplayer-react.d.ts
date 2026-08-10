@@ -25,6 +25,8 @@ export interface JWPlayerApi {
     off(event?: string, callback?: EventCallback): JWPlayerApi;
     remove(): void;
     setup(config: JWPlayerConfig | object): JWPlayerApi;
+    /** A playlist feed url, or an array of playlist items */
+    load(playlist: string | object[]): JWPlayerApi;
     [member: string]: unknown;
 }
 
@@ -46,6 +48,10 @@ export interface UnmountCallbackArguments {
  *
  * Exception: React reserves the `key` prop and never forwards it, so a player
  * license key only works via `config={{ key: ... }}`.
+ *
+ * After mount, only `playlist` updates the running player, via its load() method.
+ * Every other option — `file` included — is read once at setup, so changing it
+ * requires a remount. See "Changing Props After Mount" in the README.
  */
 export interface JWPlayerProps extends JWPlayerConfig {
     didMountCallback?: (args: MountCallbackArguments) => void;
